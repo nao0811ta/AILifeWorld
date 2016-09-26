@@ -15,7 +15,7 @@ import numpy as np
 parser = argparse.ArgumentParser(description='ml-agent-for-unity')
 parser.add_argument('--port', '-p', default='8765', type=int,
                     help='websocket port')
-parser.add_argument('--ip', '-i', default='127.0.0.1',
+parser.add_argument('--ip', '-i', default='0.0.0.0',
                     help='server ip')
 parser.add_argument('--gpu', '-g', default=-1, type=int,
                     help='GPU ID (negative value indicates CPU)')
@@ -23,7 +23,7 @@ parser.add_argument('--log-file', '-l', default='reward.log', type=str,
                     help='reward log file name')
 args = parser.parse_args()
 
-
+# Test
 class Root(object):
     @cherrypy.expose
     def index(self):
