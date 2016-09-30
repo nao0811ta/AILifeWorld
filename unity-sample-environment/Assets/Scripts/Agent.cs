@@ -38,15 +38,15 @@ namespace MLPlayer {
 			Vector3 scale2 = GameObject.Find("Agent1").transform.localScale;
 			Vector3 scale3 = GameObject.Find("Agent2").transform.localScale;
 			Vector3[] scales = new Vector3[] {scale1, scale2, scale3};
-			state.gene = new byte[3][]; // 3->agent_count
+			state.gene = new float[3][]; // 3->agent_count
 			for (int i=0; i<3; i++) {
-			    byte[] xyz = new byte[3];	
+			    float[] xyz = new float[3];	
 			    for (int j=0; j<3; j++) {
-			    	xyz[j] = (byte)scales[i][j];
+			    	xyz[j] = (float)scales[i][j];
 			    }
 			    state.gene[i] = xyz;
 			}
-			Debug.Log(state.gene[0][0]);
+			//Debug.Log(state.gene[0][0]);
 		}
 		
 		public void ResetState ()

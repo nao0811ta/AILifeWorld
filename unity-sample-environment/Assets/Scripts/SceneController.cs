@@ -28,7 +28,7 @@ namespace MLPlayer {
 		[SerializeField] string path;
 		[SerializeField] int port;
 		[SerializeField] float cycleTimeStepSize;
-		[SerializeField] float episodeTimeLength;
+		[SerializeField] float ep3isodeTimeLength;
 		[Range(0.1f, 10.0f)]
 		[SerializeField] float timeScale = 1.0f;
 		
@@ -131,6 +131,11 @@ namespace MLPlayer {
 					received.Reset ();
 					for (int i = 0; i < agents.Count; i++) {
 						agents [i].UpdateState ();
+						// <!> Must Get Parameter (add Naka)
+						agents [i].rewards = new float[3]; // 3 -> number of parameter
+						for (int j=0; j<3; j++) { // same
+						    agents [i].state.rewards[j] = agents[j].state.reward;
+						}
 						clients [i].PushAgentState (agents [i].state);
 					}
 					received.WaitOne ();
@@ -171,6 +176,11 @@ namespace MLPlayer {
 					
 					for (int i = 0; i < agents.Count; i++) {
 						agents [i].UpdateState ();
+						// <!> Must Get Parametar (add Naka)
+						agents [i].rewards = new float[3]; // 3 -> number of parametar
+						for (int j=0; j<3; j++) { // same
+						    agents [i].state.rewards[j] = agents[j].state.reward;
+						}
 						clients [i].PushAgentState (agents [i].state);
 					}
 					Time.timeScale = 0.0f;
