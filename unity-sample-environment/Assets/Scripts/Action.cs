@@ -31,10 +31,12 @@ namespace MLPlayer {
 			Clear ();
 			switch (command) {
 			case "0":
-				rotate = 1;
+				rotate  = 1;
+				forward = 1;
 				break;
 			case "1":
-				rotate = -1;
+				rotate  = -1;
+				forward =  1;
 				break;
 			case "2":
 				forward = 1;

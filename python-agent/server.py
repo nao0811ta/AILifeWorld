@@ -5,6 +5,7 @@ import argparse
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from ws4py.websocket import WebSocket
 from cnn_dqn_agent import CnnDqnAgent
+from gene_generator import GeneGenerator # add Naka
 import msgpack
 import io
 from PIL import Image
@@ -15,7 +16,7 @@ import numpy as np
 parser = argparse.ArgumentParser(description='ml-agent-for-unity')
 parser.add_argument('--port', '-p', default='8765', type=int,
                     help='websocket port')
-parser.add_argument('--ip', '-i', default='0.0.0.0',
+parser.add_argument('--ip', '-i', default='192.168.3.6',
                     help='server ip')
 parser.add_argument('--gpu', '-g', default=-1, type=int,
                     help='GPU ID (negative value indicates CPU)')
@@ -38,15 +39,22 @@ class Root(object):
 class AgentServer(WebSocket):
     agent = CnnDqnAgent()
     agent_initialized = False
+    ga    = GeneGenerator()      # add Naka
+    gene  = ga.gene_generator(1) # add Naka
     cycle_counter = 0
     thread_event = threading.Event()
     log_file = args.log_file
     reward_sum = 0
     depth_image_dim = 32 * 32
     depth_image_count = 1
+    gene_count = 3 # Number of gene (add Naka)
 
     def send_action(self, action):
         dat = msgpack.packb({"command": str(action)})
+        self.send(dat, binary=True)
+
+    def send_actionAndgene(self, action, gene): # add Naka
+        dat = msgpack.packb({"command": str(action), "gene": str(gene)})
         self.send(dat, binary=True)
 
     def received_message(self, m):
@@ -60,9 +68,14 @@ class AgentServer(WebSocket):
         for i in xrange(self.depth_image_count):
             d = (Image.open(io.BytesIO(bytearray(dat['depth'][i]))))
             depth.append(np.array(ImageOps.grayscale(d)).reshape(self.depth_image_dim))
-
         observation = {"image": image, "depth": depth}
-        reward = dat['reward']
+        """
+        gene = [] # add Naka
+        for i in xrange(self.gene_count):
+            gene.append(dat['gene'][i])
+        """
+        reward  = dat['reward']
+        #rewards = dat['rewards'] # add Naka
         end_episode = dat['endEpisode']
 
         if not self.agent_initialized:
@@ -84,6 +97,10 @@ class AgentServer(WebSocket):
             if end_episode:
                 self.agent.agent_end(reward)
                 action = self.agent.agent_start(observation)  # TODO
+                rewards = [50, 25, 30] # test add Naka 
+                self.gene = self.ga.gene_updater(self.gene, rewards) # add Naka
+                print self.gene
+                #self.send_action_Andgene(action, gene) # add Naka
                 self.send_action(action)
                 with open(self.log_file, 'a') as the_file:
                     the_file.write(str(self.cycle_counter) +
