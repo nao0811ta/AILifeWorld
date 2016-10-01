@@ -9,6 +9,7 @@ namespace MLPlayer {
 		public byte[][] depth;
 		public float[][] gene;  // add Naka
 		public float[] rewards; // add Naka
+		public int agent_id;    // add Naka
 		public void Clear() {
 			reward = 0;
 			endEpisode = false;

@@ -10,6 +10,7 @@ namespace MLPlayer {
 		[SerializeField] List<Camera> depthCameras;
 		[SerializeField] List<Texture2D> rgbImages;
 		[SerializeField] List<Texture2D> depthImages;
+		[SerializeField] Vector3 mygene;
 
 		public Action action { set; get; }
 		public State state { set; get; }
@@ -19,6 +20,28 @@ namespace MLPlayer {
 			if (!state.endEpisode) {
 				state.reward += reward;
 			}
+		}
+
+		
+		public void SetGene(Dictionary<System.Object, System.Object> gene) // add Naka
+		{
+			// make hash table (because the 2 data arrays with equal content do not provide the same hash)
+			var originalKey = new Dictionary<string, byte[]>();
+			foreach (byte[] key in gene.Keys) {
+				originalKey.Add (System.Text.Encoding.UTF8.GetString(key), key);
+				//Debug.Log ("key:" + System.Text.Encoding.UTF8.GetString(key) + " value:" + gene[key]);
+			}
+
+			// float:
+			float gene1 = float.Parse (System.Text.Encoding.UTF8.GetString((byte[])gene [originalKey ["gene1"]]));
+			float gene2 = float.Parse (System.Text.Encoding.UTF8.GetString((byte[])gene [originalKey ["gene2"]]));
+			float gene3 = float.Parse (System.Text.Encoding.UTF8.GetString((byte[])gene [originalKey ["gene3"]]));
+			mygene = new Vector3(gene1, gene2, gene3);
+		}
+
+		public void ChangeScale() // add Naka
+		{
+			transform.localScale = mygene;
 		}
 
 		public void UpdateState ()
@@ -34,9 +57,9 @@ namespace MLPlayer {
 				state.depth[i] = GetCameraImage (depthCameras[i], ref txture);
 			}
 			// <!>Must Get agents_Count and Optimize
-			Vector3 scale1 = GameObject.Find("Agent").transform.localScale;
-			Vector3 scale2 = GameObject.Find("Agent1").transform.localScale;
-			Vector3 scale3 = GameObject.Find("Agent2").transform.localScale;
+			Vector3 scale1 = GameObject.Find("Agent1").transform.localScale;
+			Vector3 scale2 = GameObject.Find("Agent2").transform.localScale;
+			Vector3 scale3 = GameObject.Find("Agent3").transform.localScale;
 			Vector3[] scales = new Vector3[] {scale1, scale2, scale3};
 			state.gene = new float[3][]; // 3->agent_count
 			for (int i=0; i<3; i++) {
@@ -67,6 +90,7 @@ namespace MLPlayer {
 		public void Start() {
 			action = new Action ();
 			state = new State ();
+			mygene = new Vector3(3, 3, 3);
 
 			rgbImages = new List<Texture2D> (rgbCameras.Capacity);
 			foreach (var cam in rgbCameras) {

@@ -37,9 +37,7 @@ class GeneGenerator:
         #
         # NGEN  is the number of generations for which the
         #       evolution runs
-        CXPB, MUTPB, NGEN = 0.8, 0.4, 10
-    
-        print("Start of evolution")
+        CXPB, MUTPB, NGEN = 0.8, 0.4, 1
     
         # Evaluate the entire population
         fitnesses = list(map(self.toolbox.evaluate, rewards))
@@ -81,7 +79,6 @@ class GeneGenerator:
             # The population is entirely replaced by the offspring
             self.gene[:] = offspring
         
-            print self.gene
         return self.gene
 
 if __name__ == "__main__":

@@ -40,7 +40,8 @@ class AgentServer(WebSocket):
     agent = CnnDqnAgent()
     agent_initialized = False
     ga    = GeneGenerator()      # add Naka
-    gene  = ga.gene_generator(1) # add Naka
+    agent_id = -1                # add Naka
+    #gene  = ga.gene_generator(1) # add Naka
     cycle_counter = 0
     thread_event = threading.Event()
     log_file = args.log_file
@@ -53,8 +54,8 @@ class AgentServer(WebSocket):
         dat = msgpack.packb({"command": str(action)})
         self.send(dat, binary=True)
 
-    def send_actionAndgene(self, action, gene): # add Naka
-        dat = msgpack.packb({"command": str(action), "gene": str(gene)})
+    def send_actionAndgene(self, action, gene): # add Naka, #MUST FIX 0,1,2 -> number of parameter
+        dat = msgpack.packb({"command": str(action), "gene1": str(gene[0]), "gene2": str(gene[1]), "gene3": str(gene[2])})
         self.send(dat, binary=True)
 
     def received_message(self, m):
@@ -69,13 +70,12 @@ class AgentServer(WebSocket):
             d = (Image.open(io.BytesIO(bytearray(dat['depth'][i]))))
             depth.append(np.array(ImageOps.grayscale(d)).reshape(self.depth_image_dim))
         observation = {"image": image, "depth": depth}
-        """
         gene = [] # add Naka
         for i in xrange(self.gene_count):
             gene.append(dat['gene'][i])
-        """
-        reward  = dat['reward']
-        #rewards = dat['rewards'] # add Naka
+        reward   = dat['reward']
+        rewards  = dat['rewards']  # add Naka
+        self.agent_id = dat['agent_id'] # add Naka
         end_episode = dat['endEpisode']
 
         if not self.agent_initialized:
@@ -97,11 +97,10 @@ class AgentServer(WebSocket):
             if end_episode:
                 self.agent.agent_end(reward)
                 action = self.agent.agent_start(observation)  # TODO
-                rewards = [50, 25, 30] # test add Naka 
-                self.gene = self.ga.gene_updater(self.gene, rewards) # add Naka
-                print self.gene
-                #self.send_action_Andgene(action, gene) # add Naka
-                self.send_action(action)
+                #rewards = [50, 25, 30] # test add Naka
+                self.gene = self.ga.gene_updater(gene, rewards) # add Naka
+                print self.agent_id, self.gene
+                self.send_actionAndgene(action, self.gene[self.agent_id]) # add Naka
                 with open(self.log_file, 'a') as the_file:
                     the_file.write(str(self.cycle_counter) +
                                    ',' + str(self.reward_sum) + '\n')

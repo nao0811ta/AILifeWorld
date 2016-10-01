@@ -28,7 +28,7 @@ namespace MLPlayer {
 		[SerializeField] string path;
 		[SerializeField] int port;
 		[SerializeField] float cycleTimeStepSize;
-		[SerializeField] float ep3isodeTimeLength;
+		[SerializeField] float episodeTimeLength;
 		[Range(0.1f, 10.0f)]
 		[SerializeField] float timeScale = 1.0f;
 		
@@ -90,7 +90,9 @@ namespace MLPlayer {
 			mutAgent.ReleaseMutex();
 
 			agent.action.Set ((Dictionary<System.Object, System.Object>)packer.Unpack (msg));
-			
+			if (agent.state.endEpisode) {
+			   agent.SetGene ((Dictionary<System.Object, System.Object>)packer.Unpack (msg)); // add Naka
+			}
 			if (agentReceiveCounter == agents.Count) {
 				received.Set();
 			}
@@ -125,6 +127,9 @@ namespace MLPlayer {
 					// TODO all agents have same value
 					if (agents [0].state.endEpisode) {
 						StartNewEpisode ();
+						for (int i=0; i<agents.Count; i++) {
+						    agents[i].ChangeScale();
+						}
 					}
 					
 					agentReceiveCounter = 0;
@@ -132,10 +137,11 @@ namespace MLPlayer {
 					for (int i = 0; i < agents.Count; i++) {
 						agents [i].UpdateState ();
 						// <!> Must Get Parameter (add Naka)
-						agents [i].rewards = new float[3]; // 3 -> number of parameter
+						agents [i].state.rewards = new float[3]; // 3 -> number of parameter
 						for (int j=0; j<3; j++) { // same
 						    agents [i].state.rewards[j] = agents[j].state.reward;
 						}
+						agents [i].state.agent_id = i;
 						clients [i].PushAgentState (agents [i].state);
 					}
 					received.WaitOne ();
@@ -171,13 +177,13 @@ namespace MLPlayer {
 					
 					// TODO all agents have same value
 					if (agents [0].state.endEpisode) {
-						StartNewEpisode ();
+					   StartNewEpisode ();
 					}
 					
 					for (int i = 0; i < agents.Count; i++) {
 						agents [i].UpdateState ();
 						// <!> Must Get Parametar (add Naka)
-						agents [i].rewards = new float[3]; // 3 -> number of parametar
+						agents [i].state.rewards = new float[3]; // 3 -> number of parametar
 						for (int j=0; j<3; j++) { // same
 						    agents [i].state.rewards[j] = agents[j].state.reward;
 						}
