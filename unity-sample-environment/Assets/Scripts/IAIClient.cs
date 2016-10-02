@@ -7,5 +7,6 @@ namespace MLPlayer {
 		void PushAgentState(State s);
 		byte[] PopAIMessage();
 		byte[] PopAgentState();
+        bool IsConnected();
 	}
 }

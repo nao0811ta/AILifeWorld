@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using MsgPack;
@@ -48,43 +49,82 @@ namespace MLPlayer {
 			return "ws://" + domain + ":" + port.ToString () + "/" + path;
 		}
 
-		void Start () {
-			clients = new List<IAIClient> ();
-			firstLocation = new List<Vector3> ();
-			foreach (var agent in agents) {
-				firstLocation.Add (agent.transform.position);
-			}
 
-			if (communicationMode == CommunicationMode.SYNC) {
-				int cnt = 0;
-				foreach (var agent in agents) {
-					clients.Add (
-						new AIClient (GetUrl(domain, port + cnt, path),
-					                      OnMessage, agent));
-					cnt++;
-				}
-			} else {
-				Application.targetFrameRate = (int)Mathf.Max(60.0f, 60.0f * timeScale);
-				int cnt = 0;
-				foreach (var agent in agents) {
-					clients.Add (new AIClientAsync (GetUrl(domain, port + cnt, path)));
-					cnt++;
-				}
-			}
+        System.Collections.IEnumerator Start()
+        {
+            clients = new List<IAIClient>();
+            firstLocation = new List<Vector3>();
+            foreach (var agent in agents)
+            {
+                firstLocation.Add(agent.transform.position);
+            }
 
-			StartNewEpisode ();
-			lastSendTime = -cycleTimeStepSize;
-			
-			mutAgent = new Mutex();
+            if (communicationMode == CommunicationMode.SYNC)
+            {
+                int cnt = 0;
+                foreach (var agent in agents)
+                {
+                    clients.Add(
+                        new AIClient(GetUrl(domain, port + cnt, path),
+                                          OnMessage, agent));
+                    cnt++;
+                }
+            }
+            else {
+                Application.targetFrameRate = (int)Mathf.Max(60.0f, 60.0f * timeScale);
+                int cnt = 0;
+                foreach (var agent in agents)
+                {
+                    clients.Add(new AIClientAsync(GetUrl(domain, port + cnt, path)));
+                    cnt++;
+                }
+            }
 
-			if (communicationMode == CommunicationMode.ASYNC && agents.Count > 1) {
-				Debug.LogError ("not supprted multi agent ASYNC mode");
-				throw new System.NotImplementedException ();
-				Application.Quit();
-			}
-		}
-		
-		void OnMessage(byte[] msg, Agent agent) {
+            enabled = false;
+            foreach (var agent in agents)
+            {
+                agent.gameObject.SetActive(false);
+            }
+            while (true)
+            {
+                bool isInitialized = true;
+                foreach (var c in clients)
+                {
+                    if (c.IsConnected() == false)
+                    {
+                        isInitialized = false;
+                        break;
+                    }
+                }
+                if (isInitialized)
+                {
+                    break;
+                }
+                else
+                {
+                    yield return null;
+                }
+            }
+            foreach (var agent in agents)
+            {
+                agent.gameObject.SetActive(true);
+            }
+            enabled = true;
+
+            StartNewEpisode();
+            lastSendTime = -cycleTimeStepSize;
+
+            mutAgent = new Mutex();
+
+            if (communicationMode == CommunicationMode.ASYNC && agents.Count > 1)
+            {
+                Debug.LogError("not supprted multi agent ASYNC mode");
+                throw new System.NotImplementedException();
+                Application.Quit();
+            }
+        }
+
+        void OnMessage(byte[] msg, Agent agent) {
 			mutAgent.WaitOne();
 			agentReceiveCounter++;
 			mutAgent.ReleaseMutex();
@@ -113,7 +153,7 @@ namespace MLPlayer {
 		}
 
 		void FixedUpdate() {
-			if (communicationMode == CommunicationMode.SYNC) {
+            if (communicationMode == CommunicationMode.SYNC) {
 				Time.timeScale = timeScale;
 				if (lastSendTime + cycleTimeStepSize <= Time.time) {
 					lastSendTime = Time.time;
@@ -144,7 +184,7 @@ namespace MLPlayer {
 		
 		
 		void Update() {
-			if (communicationMode == CommunicationMode.ASYNC) {
+            if (communicationMode == CommunicationMode.ASYNC) {
 				Application.targetFrameRate = (int)Mathf.Max (60.0f, 60.0f * timeScale);
 				
 				for (int i = 0; i < agents.Count; i++) {
