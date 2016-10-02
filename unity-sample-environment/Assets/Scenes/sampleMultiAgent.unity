@@ -479,7 +479,7 @@ MonoBehaviour:
   path: ws
   port: 8765
   cycleTimeStepSize: 0.15
-  episodeTimeLength: 2
+  episodeTimeLength: 30
   timeScale: 1
   agents:
   - {fileID: 1215490705}
