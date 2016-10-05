@@ -10,7 +10,7 @@ namespace MLPlayer {
 		[SerializeField] List<Camera> depthCameras;
 		[SerializeField] List<Texture2D> rgbImages;
 		[SerializeField] List<Texture2D> depthImages;
-		[SerializeField] Vector3 mygene;
+		[SerializeField] Vector3 mygene; // add Naka
 
 		public Action action { set; get; }
 		public State state { set; get; }
@@ -32,7 +32,7 @@ namespace MLPlayer {
 				//Debug.Log ("key:" + System.Text.Encoding.UTF8.GetString(key) + " value:" + gene[key]);
 			}
 
-			// float:
+			// add Naka MUST GET number of parameter
 			float gene1 = float.Parse (System.Text.Encoding.UTF8.GetString((byte[])gene [originalKey ["gene1"]]));
 			float gene2 = float.Parse (System.Text.Encoding.UTF8.GetString((byte[])gene [originalKey ["gene2"]]));
 			float gene3 = float.Parse (System.Text.Encoding.UTF8.GetString((byte[])gene [originalKey ["gene3"]]));
@@ -56,7 +56,7 @@ namespace MLPlayer {
 				Texture2D txture = depthImages [i];
 				state.depth[i] = GetCameraImage (depthCameras[i], ref txture);
 			}
-			// <!>Must Get agents_Count and Optimize
+			// <!>MUST GET agents_Count and Optimize
 			Vector3 scale1 = GameObject.Find("Agent1").transform.localScale;
 			Vector3 scale2 = GameObject.Find("Agent2").transform.localScale;
 			Vector3 scale3 = GameObject.Find("Agent3").transform.localScale;

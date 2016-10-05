@@ -16,7 +16,7 @@ import numpy as np
 parser = argparse.ArgumentParser(description='ml-agent-for-unity')
 parser.add_argument('--port', '-p', default='8765', type=int,
                     help='websocket port')
-parser.add_argument('--ip', '-i', default='192.168.3.6',
+parser.add_argument('--ip', '-i', default='0.0.0.0',
                     help='server ip')
 parser.add_argument('--gpu', '-g', default=-1, type=int,
                     help='GPU ID (negative value indicates CPU)')
@@ -55,7 +55,10 @@ class AgentServer(WebSocket):
         self.send(dat, binary=True)
 
     def send_actionAndgene(self, action, gene): # add Naka, #MUST FIX 0,1,2 -> number of parameter
-        dat = msgpack.packb({"command": str(action), "gene1": str(gene[0]), "gene2": str(gene[1]), "gene3": str(gene[2])})
+        pck = {"command" : str(action)}
+        for i in range(len(gene)):
+            pck["gene"+str(i+1)] = str(gene[i])
+        dat = msgpack.packb(pck)
         self.send(dat, binary=True)
 
     def received_message(self, m):
@@ -120,4 +123,3 @@ cherrypy.config.update({'engine.autoreload.on': False})
 config = {'/ws': {'tools.websocket.on': True,
                   'tools.websocket.handler_cls': AgentServer}}
 cherrypy.quickstart(Root(), '/', config)
-
