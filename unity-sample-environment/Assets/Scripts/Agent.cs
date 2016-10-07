@@ -74,11 +74,15 @@ namespace MLPlayer {
 		}
 
 		public void Start() {
-			action = new Action ();
-			state = new State ();
-			mygene = new Vector3(Random.Range(1.0,5.0), Random.Range(1.0,5.0), Random.Range(1.0,5.0));
+			float range_start = 1.0f;
+			float range_end   = 5.0f;
+			action            = new Action ();
+			state             = new State ();
+			mygene            = new Vector3(Random.Range(range_start,range_end), 
+				                        Random.Range(range_start,range_end), 
+                                                        Random.Range(range_start,range_end));
 
-			rgbImages = new List<Texture2D> (rgbCameras.Capacity);
+			rgbImages   = new List<Texture2D> (rgbCameras.Capacity);
 			foreach (var cam in rgbCameras) {
 				rgbImages.Add (new Texture2D (cam.targetTexture.width, cam.targetTexture.height,
 					TextureFormat.RGB24, false));
