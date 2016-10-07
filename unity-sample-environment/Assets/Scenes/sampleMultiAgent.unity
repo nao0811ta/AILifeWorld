@@ -475,7 +475,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   communicationMode: 1
-  domain: 153.120.159.121
+  domain: 192.168.3.6
   path: ws
   port: 8765
   cycleTimeStepSize: 0.15
