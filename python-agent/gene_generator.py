@@ -37,7 +37,7 @@ class GeneGenerator:
         #
         # NGEN  is the number of generations for which the
         #       evolution runs
-        CXPB, MUTPB, NGEN = 0.8, 0.6, 1
+        CXPB, MUTPB, NGEN = 0.8, 0.7, 1
     
         # Evaluate the entire population
         fitnesses = list(map(self.toolbox.evaluate, rewards))

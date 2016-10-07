@@ -56,20 +56,6 @@ namespace MLPlayer {
 				Texture2D txture = depthImages [i];
 				state.depth[i] = GetCameraImage (depthCameras[i], ref txture);
 			}
-			// <!>MUST GET agents_Count and Optimize
-			Vector3 scale1 = GameObject.Find("Agent1").transform.localScale;
-			Vector3 scale2 = GameObject.Find("Agent2").transform.localScale;
-			Vector3 scale3 = GameObject.Find("Agent3").transform.localScale;
-			Vector3[] scales = new Vector3[] {scale1, scale2, scale3};
-			state.gene = new float[3][]; // 3->agent_count
-			for (int i=0; i<3; i++) {
-			    float[] xyz = new float[3];	
-			    for (int j=0; j<3; j++) {
-			    	xyz[j] = (float)scales[i][j];
-			    }
-			    state.gene[i] = xyz;
-			}
-			//Debug.Log(state.gene[0][0]);
 		}
 		
 		public void ResetState ()
@@ -90,7 +76,7 @@ namespace MLPlayer {
 		public void Start() {
 			action = new Action ();
 			state = new State ();
-			mygene = new Vector3(3, 3, 3);
+			mygene = new Vector3(Random.Range(1.0,5.0), Random.Range(1.0,5.0), Random.Range(1.0,5.0));
 
 			rgbImages = new List<Texture2D> (rgbCameras.Capacity);
 			foreach (var cam in rgbCameras) {
