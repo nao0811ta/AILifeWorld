@@ -56,7 +56,7 @@ class CnnDqnAgent(object):
 
         self.time = 0
         self.epsilon = 1.0  # Initial exploratoin rate
-        self.q_net = QNet(self.use_gpu, self.actions, self.q_net_input_dim)
+        self.q_net = QNet(self.use_gpu, self.q_net_input_dim)
 
     def agent_start(self, observation):
         obs_array = self._observation_to_featurevec(observation)
@@ -69,7 +69,7 @@ class CnnDqnAgent(object):
             state_ = cuda.to_gpu(state_)
 
         # Generate an Action e-greedy
-        action, q_now = self.q_net.e_greedy(state_, self.epsilon)
+        action = self.q_net.e_greedy(state_, self.epsilon)
         return_action = action
 
         # Update for next step
@@ -113,29 +113,32 @@ class CnnDqnAgent(object):
             eps = 0.05
 
         # Generate an Action by e-greedy action selection
-        action, q_now = self.q_net.e_greedy(state_, eps)
+        action = self.q_net.e_greedy(state_, eps)
 
-        return action, eps, q_now, obs_array
+        return action, eps, obs_array
 
-    def agent_step_update(self, reward, action, eps, q_now, obs_array):
+    def agent_step_update(self, reward, action, eps, obs_array):
         # Learning Phase
         if self.policy_frozen is False:  # Learning ON/OFF
             self.q_net.stock_experience(self.time, self.last_state, self.last_action, reward, self.state, False)
             self.q_net.experience_replay(self.time)
 
         # Target model update
-        if self.q_net.initial_exploration < self.time and np.mod(self.time, self.q_net.target_model_update_freq) == 0:
-            print("Model Updated")
-            self.q_net.target_model_update()
+        # if self.q_net.initial_exploration < self.time and np.mod(self.time, self.q_net.target_model_update_freq) == 0:
+        #     print("Model Updated")
+        #     self.q_net.target_model_update()
 
         # Simple text based visualization
-        if self.use_gpu >= 0:
-            q_max = np.max(q_now.get())
-        else:
-            q_max = np.max(q_now)
+        # if self.use_gpu >= 0:
+        #     q_max = np.max(self.q_now.get())
+        # else:
+        #     q_max = np.max(self.q_now)
+        #
+        # print('Step:%d  Action:%d  Reward:%.1f  Epsilon:%.6f  Q_max:%3f' % (
+        #     self.time, self.q_net.action_to_index(action), reward, eps, q_max))
 
-        print('Step:%d  Action:%d  Reward:%.1f  Epsilon:%.6f  Q_max:%3f' % (
-            self.time, self.q_net.action_to_index(action), reward, eps, q_max))
+        # Simple text based visualization
+        print 'Time Step %d / ACTION  %s / REWARD %.5f / EPSILON  %.5f' % (self.time,str(action[0]),reward,eps)
 
         # Updates for next step
         self.last_observation = obs_array
@@ -155,9 +158,9 @@ class CnnDqnAgent(object):
             self.q_net.experience_replay(self.time)
 
         # Target model update
-        if self.q_net.initial_exploration < self.time and np.mod(self.time, self.q_net.target_model_update_freq) == 0:
-            print("Model Updated")
-            self.q_net.target_model_update()
+        # if self.q_net.initial_exploration < self.time and np.mod(self.time, self.q_net.target_model_update_freq) == 0:
+        #     print("Model Updated")
+        #     self.q_net.target_model_update()
 
         # Time count
         if self.policy_frozen is False:

@@ -60,8 +60,10 @@ class Agent:
                                    ',' + str(self.reward_sum) + '\n')
                 self.reward_sum = 0
             else:
-                action, eps, q_now, obs_array = self.cnnDqnAgent.agent_step(reward, observation)
+                action, eps, obs_array = self.cnnDqnAgent.agent_step(reward, observation)
                 agentServer.send_action(action)
-                self.cnnDqnAgent.agent_step_update(reward, action, eps, q_now, obs_array)
+                self.cnnDqnAgent.agent_step_update(reward, action, eps, obs_array)
 
         self.thread_event.set()
+
+
