@@ -13,7 +13,7 @@ class GeneGenerator:
 
         self.toolbox = base.Toolbox()
 
-        self.toolbox.register("attr_paramater", random.randint, 1, 30)
+        self.toolbox.register("attr_paramater", random.randint, 1, 6)
         self.toolbox.register("individual", tools.initRepeat, creator.Individual, 
                          self.toolbox.attr_paramater, 3)
         self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual)
@@ -38,7 +38,7 @@ class GeneGenerator:
         # NEWINDPB is the probability for an new individual
         # NGEN     is the number of generations for which the
         #          evolution runs
-        CXPB, MUTPB, NEWINDPB, NGEN = 0.7, 0.5, 0.2, 1
+        CXPB, MUTPB, NEWINDPB, NGEN = 0.7, 0.5, 0.05, 1
     
         # Evaluate the entire population
         fitnesses = list(map(self.toolbox.evaluate, rewards))
@@ -72,12 +72,12 @@ class GeneGenerator:
                     del mutant.fitness.values
 
             for ind in range(len(offspring)):
-
+                
                 # new individual with probability NEWINDPB
                 if random.random() < NEWINDPB:
-                    offspring[ind] = creator.Individual(self.gene_generator(1))
+                    offspring[ind] = creator.Individual(self.gene_generator(1))[0]
                     del offspring[ind].fitness.values
-                    print offspring[ind]
+                    #print offspring[ind]
     
             # Evaluate the individuals with an invalid fitness
             invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
