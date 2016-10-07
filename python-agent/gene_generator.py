@@ -30,14 +30,15 @@ class GeneGenerator:
 
     def gene_updater(self, gene, rewards):
         self.gene = [creator.Individual(i) for i in gene]
-        # CXPB  is the probability with which two individuals
-        #       are crossed
+        # CXPB     is the probability with which two individuals
+        #          are crossed
         #
-        # MUTPB is the probability for mutating an individual
+        # MUTPB    is the probability for mutating an individual
         #
-        # NGEN  is the number of generations for which the
-        #       evolution runs
-        CXPB, MUTPB, NGEN = 0.8, 0.7, 1
+        # NEWINDPB is the probability for an new individual
+        # NGEN     is the number of generations for which the
+        #          evolution runs
+        CXPB, MUTPB, NEWINDPB, NGEN = 0.7, 0.5, 0.2, 1
     
         # Evaluate the entire population
         fitnesses = list(map(self.toolbox.evaluate, rewards))
@@ -69,6 +70,14 @@ class GeneGenerator:
                 if random.random() < MUTPB:
                     self.toolbox.mutate(mutant)
                     del mutant.fitness.values
+
+            for ind in range(len(offspring)):
+
+                # new individual with probability NEWINDPB
+                if random.random() < NEWINDPB:
+                    offspring[ind] = creator.Individual(self.gene_generator(1))
+                    del offspring[ind].fitness.values
+                    print offspring[ind]
     
             # Evaluate the individuals with an invalid fitness
             invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
@@ -83,5 +92,4 @@ class GeneGenerator:
 
 if __name__ == "__main__":
     gene = GeneGenerator().gene_generator(3)
-    GeneGenerator().gene_updater([[23,44,55], [3,44,5], [55,34,66]], [50,25,30])
-
+    print GeneGenerator().gene_updater([[23,44,55], [3,44,5], [55,34,66]], [50,25,30])
