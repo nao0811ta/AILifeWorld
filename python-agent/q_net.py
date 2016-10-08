@@ -2,7 +2,7 @@
 
 import copy
 import numpy as np
-from chainer import cuda, FunctionSet, Variable, optimizers
+from chainer import cuda, FunctionSet, Variable, optimizers, serializers
 import chainer.functions as F
 import random
 
@@ -202,9 +202,9 @@ class QNet:
             self.soft_target_model_update()
 
             print("critic_target Updated")
-            serializers.save_npz('./critic_target.model_' + str(self.agent_id), self.critic_target)
+            serializers.save_npz('./critic_target.model_' + str(self.agent_id), self.critic)
             print("actor_target Updated")
-            serializers.save_npz('./actor_target.model_' + str(self.agent_id), self.actor_target)
+            serializers.save_npz('./actor_target.model_' + str(self.agent_id), self.actor)
 
             print "AVG_Q %f" % (np.average(q.data.get()))
             print("loss " + str(loss.data))

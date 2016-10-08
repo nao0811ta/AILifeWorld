@@ -50,7 +50,8 @@ class Agent:
             print ("initializing agent...gpu count : " + str(self.args.gpu))
             self.cnnDqnAgent.agent_init(
                 use_gpu=self.args.gpu,
-                depth_image_dim=self.depth_image_dim * self.depth_image_count)
+                depth_image_dim=self.depth_image_dim * self.depth_image_count,
+                agent_id=self.agent_id)
 
             action = self.cnnDqnAgent.agent_start(observation)
             agentServer.send_action(action)
