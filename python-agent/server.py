@@ -17,7 +17,7 @@ parser.add_argument('--port', '-p', default='8765', type=int,
                     help='websocket port')
 parser.add_argument('--ip', '-i', default='0.0.0.0',
                     help='server ip')
-parser.add_argument('--gpu', '-g', default=-1, type=int,
+parser.add_argument('--gpu', '-g', default=1, type=int,
                     help='GPU ID (negative value indicates CPU)')
 parser.add_argument('--log-file', '-l', default='reward.log', type=str,
                     help='reward log file name')

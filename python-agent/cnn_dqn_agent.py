@@ -41,7 +41,6 @@ class CnnDqnAgent(object):
             print("not supported: number of camera")
 
     def __init__(self, **options):
-        print 'cnn dqn __init__'
         self.use_gpu = options['use_gpu']
         self.depth_image_dim = options['depth_image_dim']
         self.q_net_input_dim = self.image_feature_dim * self.image_feature_count + self.depth_image_dim

@@ -5,7 +5,7 @@ from subprocess import Popen
 parser = argparse.ArgumentParser()
 parser.add_argument('--port-start', '-p', default='8765', type=int,
                     help='websocket port')
-parser.add_argument('--gpu', '-g', default=-1, type=int,
+parser.add_argument('--gpu', '-g', default=1, type=int,
                     help='GPU ID (negative value indicates CPU)')
 parser.add_argument('--log-file', '-l', default='reward', type=str,
                     help='reward log file name')
