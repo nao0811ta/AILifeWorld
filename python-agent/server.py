@@ -41,7 +41,6 @@ class AgentServer(WebSocket):
     agent_initialized = False
     ga    = GeneGenerator()      # add Naka
     agent_id = -1                # add Naka
-    #gene  = ga.gene_generator(1) # add Naka
     cycle_counter = 0
     thread_event = threading.Event()
     log_file = args.log_file
@@ -54,7 +53,7 @@ class AgentServer(WebSocket):
         dat = msgpack.packb({"command": str(action)})
         self.send(dat, binary=True)
 
-    def send_actionAndgene(self, action, gene): # add Naka, #MUST FIX 0,1,2 -> number of parameter
+    def send_actionAndgene(self, action, gene): # add Naka
         pck = {"command" : str(action)}
         for i in range(len(gene)):
             pck["gene"+str(i+1)] = str(gene[i])
@@ -100,7 +99,6 @@ class AgentServer(WebSocket):
             if end_episode:
                 self.agent.agent_end(reward)
                 action = self.agent.agent_start(observation)  # TODO
-                #rewards = [50, 25, 30] # test add Naka
                 self.gene = self.ga.gene_updater(gene, rewards) # add Naka
                 print self.agent_id, self.gene
                 self.send_actionAndgene(action, self.gene[self.agent_id]) # add Naka
