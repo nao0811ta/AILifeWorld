@@ -10,12 +10,12 @@ import random
 class QNet:
     # Hyper-Parameters
     gamma = 0.99                            # Discount factor
-    initial_exploration = 5*10**4             # Initial exploratoin. original: 5x10^4
+    initial_exploration = 32            # Initial exploratoin. original: 5x10^4
     replay_size = 32                        # Replay (batch) size
     target_model_update_freq = 10**4        # Target update frequancy. original: 10^4
     data_size = 10**6                       # Data size of history. original: 10^6
     hist_size = 1                           #original: 4
-    num_of_actions = 2 ## CDQN
+    num_of_actions = 4 ## CDQN
 
     def __init__(self, use_gpu, dim):
         self.use_gpu = use_gpu
@@ -82,16 +82,8 @@ class QNet:
         num_of_batch = state.shape[0]
         # s = Variable(state)
         # s_dash = Variable(state_dash)
-
-        s_data = np.concatenate([state, action],1)
-        s_data_dash = state_dash
-
-        if self.use_gpu >= 0:
-            s_data = cuda.to_gpu(s_data)
-            s_data_dash = cuda.to_gpu(state_dash)
-
-        s = Variable(s_data)
-        s_dash = Variable(s_data_dash)
+        s = Variable(cuda.to_gpu(np.concatenate([state, action],1)))
+        s_dash = Variable(cuda.to_gpu(state_dash))
 
         q = self.q_func(s)  # Get Q-value
 
@@ -110,12 +102,7 @@ class QNet:
         #     target = np.array(q.data, dtype=np.float32)
         action_dash_tmp = self.a_func_target(s_dash)
         action_dash = np.asanyarray(action_dash_tmp.data.get(), dtype=np.float32)
-
-        tmp_dash_data = np.concatenate([state_dash, action_dash],1)
-        if self.use_gpu >= 0:
-            tmp_dash_data = cuda.to_gpu(tmp_dash_data)
-
-        tmp_dash = Variable(tmp_dash_data)
+        tmp_dash = Variable(cuda.to_gpu(np.concatenate([state_dash, action_dash],1)))
         Q_dash_tmp = self.q_func_target(tmp_dash)
         Q_dash = np.asanyarray(Q_dash_tmp.data.get(), dtype=np.float32)
         target = np.asanyarray(q.data.get(), dtype=np.float32)
@@ -261,10 +248,13 @@ class QNet:
         # q = q.data
 
         if np.random.rand() < epsilon:
-            #action = np.random.uniform(-1.,1.,(1,self.num_of_actions)).astype(np.float32)
-            action = np.zeros((1,2))
-            action[0][0] = random.random()
-            action[0][1] = random.uniform(-1.,1.)
+            action = np.random.uniform(-1.,1.,(1,self.num_of_actions)).astype(np.float32)
+            # action = np.zeros((1,4))
+            # action[0][0] = random.random()
+            # #action[0][1] = random.uniform(-1.,1.)
+            # action[0][1] = random.random()
+            # action[0][2] = random.random()
+            # action[0][3] = random.random()
             #index_action = np.random.randint(0, self.num_of_actions)
             print(" Random"),
         else:
@@ -306,22 +296,14 @@ class QNet:
         A_max = 1.0
         A_min = -1.0
 
-        if self.use_gpu >= 0:
-            state = cuda.to_gpu(state)
-
-        A = self.a_func(state)
-        tmp_data = np.concatenate([state, A.data.get()], 1)
-        if self.use_gpu >= 0:
-            tmp_data = cuda.to_gpu(tmp_data)
-        tmp = Variable(tmp_data)
+        A = self.a_func(Variable(cuda.to_gpu(state)))
+        tmp = Variable(cuda.to_gpu(np.concatenate([state, A.data.get()], 1)))
         Q = self.q_func(tmp)
 
         # Backward prop towards actor net
         # self.critic.zerograds()
         # self.actor.zerograds()
-        Q.grad = np.ones((num_of_batch, 1), dtype=np.float32) * (-1.0)
-        if self.use_gpu >= 0:
-            Q.grad = cuda.to_gpu(Q.grad)
+        Q.grad = cuda.to_gpu(np.ones((num_of_batch, 1), dtype=np.float32) * (-1.0))
         #        Q.grad = Q.data*(-1.0)
         Q.backward()
         A.grad = tmp.grad[:, -self.num_of_actions:]

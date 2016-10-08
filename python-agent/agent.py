@@ -12,7 +12,6 @@ from gene_generator import GeneGenerator
 
 #@Singleton
 class Agent:
-    cnnDqnAgent = CnnDqnAgent()
     agent_initialized = False
     ga    = GeneGenerator()      # add Naka
     agent_id = -1                # add Naka
@@ -24,8 +23,14 @@ class Agent:
     gene_count = 3 # Number of gene (add Naka)
 
     def __init__(self, args):
-        print "init first agent"
+        print "start to load cnn model"
         self.args = args
+        self.cnnDqnAgent = CnnDqnAgent(
+            use_gpu=self.args.gpu,
+            depth_image_dim=self.depth_image_dim * self.depth_image_count)
+        print 'finish loading cnn model'
+        self.cnnDqnAgent.agent_init()
+        print 'finish init cnn dqn agent'
 
     def received_message(self, agentServer, dat):
         image = []
@@ -46,12 +51,8 @@ class Agent:
         end_episode = dat['endEpisode']
 
         if not self.agent_initialized:
+            print 'connected and agent started..'
             self.agent_initialized = True
-            print ("initializing agent...gpu count : " + str(self.args.gpu))
-            self.cnnDqnAgent.agent_init(
-                use_gpu=self.args.gpu,
-                depth_image_dim=self.depth_image_dim * self.depth_image_count)
-
             action = self.cnnDqnAgent.agent_start(observation)
             agentServer.send_action(action)
             with open(self.args.log_file, 'w') as the_file:
