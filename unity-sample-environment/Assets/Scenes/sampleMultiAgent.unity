@@ -475,11 +475,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   communicationMode: 1
-  domain: 192.168.3.6
+  domain: 153.120.159.121
   path: ws
   port: 8765
   cycleTimeStepSize: 0.15
-  episodeTimeLength: 60
+  episodeTimeLength: 45
   timeScale: 1
   agents:
   - {fileID: 1215490705}
