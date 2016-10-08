@@ -32,7 +32,8 @@ public class MyCharacter : MonoBehaviour
                 }
             }
         }
-        root.transform.localScale = Vector3.one * 0.1f;
+        root.transform.localScale = Vector3.one * 0.05f;
+        root.transform.localPosition = new Vector3(0, 0.5f, 0);
     }
 
     void Start()
