@@ -16,15 +16,17 @@ class QNet:
     data_size = 10**6                       # Data size of history. original: 10^6
     hist_size = 1                           #original: 4
     num_of_actions = 2 ## CDQN
+    agent_id = -1
 
-    def __init__(self, use_gpu, dim):
+    def __init__(self, use_gpu, dim, agent_id):
         self.use_gpu = use_gpu
         #self.num_of_actions = len(enable_controller)
         #self.enable_controller = enable_controller
         self.dim = dim
         self.num_of_states = self.dim*self.hist_size
+        self.agent_id = agent_id
 
-        print("Initializing Q-Network...")
+        print("Initializing Q-Network...  :", str(agent_id))
 
         self.critic = FunctionSet(
             l1=F.Linear(self.num_of_actions+self.num_of_states, 1024),
@@ -198,6 +200,11 @@ class QNet:
             self.updateActor(s_replay)
 
             self.soft_target_model_update()
+
+            print("critic_target Updated")
+            serializers.save_npz('./critic_target.model_' + str(self.agent_id), self.critic_target)
+            print("actor_target Updated")
+            serializers.save_npz('./actor_target.model_' + str(self.agent_id), self.actor_target)
 
             print "AVG_Q %f" % (np.average(q.data.get()))
             print("loss " + str(loss.data))

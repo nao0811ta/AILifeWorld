@@ -14,7 +14,7 @@ class CnnDqnAgent(object):
     policy_frozen = False
     epsilon_delta = 1.0 / 10 ** 4.4
     min_eps = 0.1
-
+    agent_id = -1
     actions = [0, 1, 2]
 
     cnn_feature_extractor = 'alexnet_feature_extractor.pickle'
@@ -43,6 +43,7 @@ class CnnDqnAgent(object):
     def agent_init(self, **options):
         self.use_gpu = options['use_gpu']
         self.depth_image_dim = options['depth_image_dim']
+        self.agent_id = options['agent_id']
         self.q_net_input_dim = self.image_feature_dim * self.image_feature_count + self.depth_image_dim
 
         if os.path.exists(self.cnn_feature_extractor):
@@ -56,7 +57,7 @@ class CnnDqnAgent(object):
 
         self.time = 0
         self.epsilon = 1.0  # Initial exploratoin rate
-        self.q_net = QNet(self.use_gpu, self.q_net_input_dim)
+        self.q_net = QNet(self.use_gpu, self.q_net_input_dim, self.agent_id)
 
     def agent_start(self, observation):
         obs_array = self._observation_to_featurevec(observation)
