@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44692534, g: 0.49678713, b: 0.5750854, a: 1}
+  m_IndirectSpecularColor: {r: 0.44692534, g: 0.49678725, b: 0.5750856, a: 1}
 --- !u!157 &4
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -235,9 +235,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   communicationMode: 1
-  domain: 60.68.16.60
+  domain: 153.120.159.121
   path: ws
-  port: 8765
+  port: 4567
   cycleTimeStepSize: 0.15
   episodeTimeLength: 15
   timeScale: 1

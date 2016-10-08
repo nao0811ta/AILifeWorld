@@ -8,15 +8,20 @@ from PIL import ImageOps
 import threading
 import numpy as np
 
+from gene_generator import GeneGenerator
+
 #@Singleton
 class Agent:
     cnnDqnAgent = CnnDqnAgent()
     agent_initialized = False
+    ga    = GeneGenerator()      # add Naka
+    agent_id = -1                # add Naka
     cycle_counter = 0
     thread_event = threading.Event()
     reward_sum = 0
     depth_image_dim = 32 * 32
     depth_image_count = 1
+    gene_count = 3 # Number of gene (add Naka)
 
     def __init__(self, args):
         print "init first agent"
@@ -32,7 +37,12 @@ class Agent:
             depth.append(np.array(ImageOps.grayscale(d)).reshape(self.depth_image_dim))
 
         observation = {"image": image, "depth": depth}
+        gene = []  # add Naka
+        for i in xrange(self.gene_count):
+            gene.append(dat['gene'][i])
         reward = dat['reward']
+        rewards  = dat['rewards']  # add Naka
+        self.agent_id = dat['agent_id'] # add Naka
         end_episode = dat['endEpisode']
 
         if not self.agent_initialized:
@@ -54,6 +64,9 @@ class Agent:
             if end_episode:
                 self.cnnDqnAgent.agent_end(reward)
                 action = self.cnnDqnAgent.agent_start(observation)  # TODO
+                self.gene = self.ga.gene_updater(gene, rewards) # add Naka
+                print self.agent_id, self.gene
+                agentServer.send_actionAndgene(action, self.gene[self.agent_id]) # add Naka
                 agentServer.send_action(action)
                 with open(self.args.log_file, 'a') as the_file:
                     the_file.write(str(self.cycle_counter) +

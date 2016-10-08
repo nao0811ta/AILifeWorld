@@ -26,29 +26,30 @@ parser.add_argument('--model', '-m', default='', type=str,
 
 args = parser.parse_args()
 
+agent = Agent(args)
 
-def save(obj):
-    backup_name = datetime.now().strftime("%Y%m%d%H%M%S") + '.dump'
-    print 'backed up ' + backup_name
-    with open(backup_name, 'wb') as f:
-        pickle.dump(obj, f)
-        f.close()
-
-
-def load(backupPath):
-    print 'loaded ' + backupPath
-    with open(backupPath, 'rb') as f:
-        a = pickle.load(f)
-        f.close()
-        return a
-
-
-if not args.model:
-    agent = Agent(args)
-else:
-    agent = load(args.model)
-
-atexit.register(save, obj=agent)
+#TODO Miyamotosan Onegaishimasu
+# def save(obj):
+#     backup_name = datetime.now().strftime("%Y%m%d%H%M%S") + '.dump'
+#     print 'backed up ' + backup_name
+#     with open(backup_name, 'wb') as f:
+#         pickle.dump(obj, f)
+#         f.close()
+#
+#
+# def load(backupPath):
+#     print 'loaded ' + backupPath
+#     with open(backupPath, 'rb') as f:
+#         a = pickle.load(f)
+#         f.close()
+#         return a
+#
+# if not args.model:
+#     agent = Agent(args)
+# else:
+#     agent = load(args.model)
+#
+# atexit.register(save, obj=agent)
 
 
 # Test
@@ -69,7 +70,7 @@ class AgentServer(WebSocket):
         dat = msgpack.packb({"c0": str(action[0][0]), "c1": str(action[0][1])})
         self.send(dat, binary=True)
 
-    def send_actionAndgene(self, action, gene): # add Naka, #MUST FIX 0,1,2 -> number of parameter
+    def send_actionAndgene(self, action, gene): # add Naka
         pck = {"command" : str(action)}
         for i in range(len(gene)):
             pck["gene"+str(i+1)] = str(gene[i])

@@ -41,6 +41,7 @@ namespace MLPlayer {
 		private float episodeStartTime = 0f;
 		private int agentReceiveCounter;
 		MsgPack.BoxingPacker packer = new MsgPack.BoxingPacker ();
+		private int NumberOfParameter = 3; // add Naka
 		
 		public static ManualResetEvent received = new ManualResetEvent(false);
 		private Mutex mutAgent;
@@ -175,13 +176,29 @@ namespace MLPlayer {
 					agentReceiveCounter = 0;
 					received.Reset ();
 					for (int i = 0; i < agents.Count; i++) {
+						System.Console.WriteLine (i + " Agent.");
 						agents [i].UpdateState ();
-						// <!> Must Get Parameter (add Naka)
-						agents [i].state.rewards = new float[3]; // 3 -> number of parameter
-						for (int j=0; j<3; j++) { // same
+
+						agents [i].state.rewards = new float[NumberOfParameter];  // Set rewards
+						for (int j=0; j<NumberOfParameter; j++) {
 						    agents [i].state.rewards[j] = agents[j].state.reward;
 						}
-						agents [i].state.agent_id = i;
+
+						agents [i].state.agent_id = i;                            // Set agent_id
+						
+						Vector3[] scales = new Vector3[agents.Count];             // Set gene
+						for (int j=0; j<agents.Count; j++) {
+						    scales[j] = agents[j].transform.localScale;
+						}
+						agents[i].state.gene = new float[agents.Count][];
+						for (int j=0; j<agents.Count; j++) {
+			    			    float[] xyz = new float[NumberOfParameter];
+			    			    for (int k=0; k<NumberOfParameter; k++) {
+			    			    	xyz[k] = (float)scales[j][k];
+			    			    }
+			    			    agents[i].state.gene[j] = xyz;
+						}
+
 						clients [i].PushAgentState (agents [i].state);
 					}
 					received.WaitOne ();
