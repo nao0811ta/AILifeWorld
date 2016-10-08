@@ -67,7 +67,6 @@ class Agent:
                 self.gene = self.ga.gene_updater(gene, rewards) # add Naka
                 print self.agent_id, self.gene
                 agentServer.send_actionAndgene(action, self.gene[self.agent_id]) # add Naka
-                agentServer.send_action(action)
                 with open(self.args.log_file, 'a') as the_file:
                     the_file.write(str(self.cycle_counter) +
                                    ',' + str(self.reward_sum) + '\n')

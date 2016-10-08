@@ -71,7 +71,7 @@ class AgentServer(WebSocket):
         self.send(dat, binary=True)
 
     def send_actionAndgene(self, action, gene): # add Naka
-        pck = {"command" : str(action)}
+        pck = {"c0": str(action[0][0]), "c1": str(action[0][1])}
         for i in range(len(gene)):
             pck["gene"+str(i+1)] = str(gene[i])
         dat = msgpack.packb(pck)
