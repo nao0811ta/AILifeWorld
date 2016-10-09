@@ -60,7 +60,7 @@ class CnnDqnAgent(object):
         self.epsilon = 1.0  # Initial exploratoin rate
 
     def agent_init(self):
-        self.q_net = QNet(self.use_gpu, self.q_net_input_dim)
+        self.q_net = QNet(self.use_gpu, self.q_net_input_dim, self.agent_id)
 
     def agent_start(self, observation):
         obs_array = self._observation_to_featurevec(observation)
@@ -121,11 +121,12 @@ class CnnDqnAgent(object):
 
         return action, eps, obs_array
 
-    def agent_step_update(self, reward, action, eps, obs_array):
+    def agent_step_update(self, reward, action, eps, obs_array, agentid):
         # Learning Phase
         if self.policy_frozen is False:  # Learning ON/OFF
-            self.q_net.stock_experience(self.time, self.last_state, self.last_action, reward, self.state, False)
-            self.q_net.experience_replay(self.time)
+            print("setp_update agent_id:"+str(agentid))
+            self.q_net.stock_experience(self.time, self.last_state, self.last_action, reward, self.state, agentid, False)
+            self.q_net.experience_replay(self.time, False)
 
         # Target model update
         # if self.q_net.initial_exploration < self.time and np.mod(self.time, self.q_net.target_model_update_freq) == 0:
@@ -152,14 +153,14 @@ class CnnDqnAgent(object):
             self.last_state = self.state.copy()
             self.time += 1
 
-    def agent_end(self, reward):  # Episode Terminated
+    def agent_end(self, reward, agentid):  # Episode Terminated
         print('episode finished. Reward:%.1f / Epsilon:%.6f' % (reward, self.epsilon))
 
         # Learning Phase
         if self.policy_frozen is False:  # Learning ON/OFF
-            self.q_net.stock_experience(self.time, self.last_state, self.last_action, reward, self.last_state,
+            self.q_net.stock_experience(self.time, self.last_state, self.last_action, reward, self.last_state, agentid,
                                         True)
-            self.q_net.experience_replay(self.time)
+            self.q_net.experience_replay(self.time, True)
 
         # Target model update
         # if self.q_net.initial_exploration < self.time and np.mod(self.time, self.q_net.target_model_update_freq) == 0:
