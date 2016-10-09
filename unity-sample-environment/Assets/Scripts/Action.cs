@@ -5,11 +5,15 @@ namespace MLPlayer {
 	public class Action {
 		public float rotate;
 		public float forward;
-		public bool jump;
+		public float scale;
+		public float jump;
+		public bool canJump;
 		public void Clear() {
 			rotate = 0;
 			forward = 0;
-			jump = false;
+			jump = 0;
+			canJump = false;
+			scale = 1.0f;
 		}
 
 		public void Set(Dictionary<System.Object, System.Object> action) {
@@ -23,8 +27,11 @@ namespace MLPlayer {
 
 			Clear ();
 			// string:
-			forward = float.Parse(System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["c0"]]));
-			rotate = float.Parse(System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["c1"]]));
+			forward = float.Parse(System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["x"]]));
+			rotate = float.Parse(System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["y"]]));
+			jump = float.Parse(System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["z"]]));
+			scale = float.Parse(System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["s"]]));
+			canJump = jump > 0.5;
 			// int:
 			//int i = (int)action [originalKey ["command"]];
 			// float:
