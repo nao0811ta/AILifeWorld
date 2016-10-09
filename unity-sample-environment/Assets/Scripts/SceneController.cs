@@ -49,8 +49,34 @@ namespace MLPlayer {
 			return "ws://" + domain + ":" + port.ToString () + "/" + path;
 		}
 
-		void Start () {
-			clients = new List<IAIClient> ();
+        UnityEngine.UI.RawImage[] rawImages = null;
+        public void SetRawImage(int index, RenderTexture tex)
+        {
+            if (rawImages == null)
+                CreateRawImages();
+            rawImages[index].texture = tex;
+        }
+
+        void CreateRawImages()
+        {
+            rawImages = new UnityEngine.UI.RawImage[agents.Count];
+            for (int i = 0; i < agents.Count; ++i)
+            {
+                var a = agents[i];
+                var v = GameObject.Instantiate(_viewPrefab);
+                v.transform.SetParent(_canvas.transform);
+                var t = v.GetComponent<RectTransform>();
+                Vector3 p = new Vector3(50, 300 - 80 * i, 0);
+                t.position = p;
+                rawImages[i] = v.GetComponent<UnityEngine.UI.RawImage>();
+            }
+        }
+
+        void Start () {
+            if (rawImages == null)
+                CreateRawImages();
+
+            clients = new List<IAIClient> ();
 			firstLocation = new List<Vector3> ();
 			foreach (var agent in agents) {
 				firstLocation.Add (agent.transform.position);
@@ -83,9 +109,9 @@ namespace MLPlayer {
 				throw new System.NotImplementedException ();
 				Application.Quit();
 			}
-		}
-		
-		void OnMessage(byte[] msg, Agent agent) {
+        }
+
+        void OnMessage(byte[] msg, Agent agent) {
 			mutAgent.WaitOne();
 			agentReceiveCounter++;
 			mutAgent.ReleaseMutex();
@@ -211,5 +237,12 @@ namespace MLPlayer {
 				}
 			}
 		}
+
+        [SerializeField]
+        GameObject _viewPrefab;
+
+        [SerializeField]
+        GameObject _canvas;
+
 	}
 }
