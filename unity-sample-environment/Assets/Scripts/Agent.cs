@@ -11,6 +11,7 @@ namespace MLPlayer {
 		[SerializeField] List<Texture2D> rgbImages;
 		[SerializeField] List<Texture2D> depthImages;
 		[SerializeField] Vector3 mygene; // add Naka
+		public int Energy; // add Naka
 
 		public Action action { set; get; }
 		public State state { set; get; }
@@ -46,6 +47,9 @@ namespace MLPlayer {
 
 		public void UpdateState ()
 		{
+			if (Energy <= 0) {
+			   this.gameObject.active = false;
+			}
 			state.image = new byte[rgbCameras.Count][];
 			for (int i=0; i<rgbCameras.Count; i++) {
 				Texture2D txture = rgbImages [i];
@@ -65,7 +69,7 @@ namespace MLPlayer {
 
 		public void StartEpisode ()
 		{
-			
+			//this.gameObject.active = true;
 		}
 
 		public void EndEpisode ()
@@ -81,6 +85,7 @@ namespace MLPlayer {
 			mygene            = new Vector3(Random.Range(range_start,range_end), 
 				                        Random.Range(range_start,range_end), 
                                                         Random.Range(range_start,range_end));
+			Energy            = 100;
 
 			rgbImages   = new List<Texture2D> (rgbCameras.Capacity);
 			foreach (var cam in rgbCameras) {

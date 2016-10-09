@@ -21,16 +21,14 @@ namespace MLPlayer {
 				//Debug.Log ("key:" + System.Text.Encoding.UTF8.GetString(key) + " value:" + action[key]);
 			}
 
-			Clear ();
 			// string:
-			forward = float.Parse(System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["c0"]]));
-			rotate = float.Parse(System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["c1"]]));
+			string command = System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["command"]]);
 			// int:
 			//int i = (int)action [originalKey ["command"]];
 			// float:
 			//float f = float.Parse (System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["value"]]));
 
-			/*
+			Clear ();
 			switch (command) {
 			case "0":
 				rotate  = 1;
@@ -47,7 +45,6 @@ namespace MLPlayer {
 				jump = true;
 				break;
 			}
-			*/
 		}
 	}
 }
