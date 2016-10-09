@@ -80,7 +80,7 @@ namespace MLPlayer {
 		{
             int index = int.Parse(name.Substring(5)) - 1;
             SceneController.Instance.SetRawImage(index, _frameBuffer);
-            //this.gameObject.active = true;
+            this.gameObject.active = true;
         }
 
         public void EndEpisode ()

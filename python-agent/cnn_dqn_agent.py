@@ -113,7 +113,7 @@ class CnnDqnAgent(object):
                     self.epsilon = self.min_eps
                 eps = self.epsilon
             else:  # Initial Exploation Phase
-                print("Initial Exploration : %d/%d steps" % (self.time, self.q_net.initial_exploration)),
+                print("Initial Exploration : %d/%d steps" % (self.time, self.q_net.initial_exploration))
                 eps = 1.0
         else:  # Evaluation
             print("Policy is Frozen")
@@ -127,7 +127,7 @@ class CnnDqnAgent(object):
     def agent_step_update(self, reward, action, eps, obs_array, agentid):
         # Learning Phase
         if self.policy_frozen is False:  # Learning ON/OFF
-            print("setp_update agent_id:"+str(agentid))
+            #print("setp_update agent_id:"+str(agentid))
             self.q_net.stock_experience(self.time, self.last_state, self.last_action, reward, self.state, agentid, False)
             self.q_net.experience_replay(self.time, False)
 

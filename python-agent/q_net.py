@@ -10,7 +10,7 @@ import random
 class QNet:
     # Hyper-Parameters
     gamma = 0.99                            # Discount factor
-    initial_exploration = 5*10              # Initial exploratoin. original: 5x10^4
+    initial_exploration = 5*10**3            # Initial exploratoin. original: 5x10^4
     replay_size = 32                        # Replay (batch) size
     target_model_update_freq = 10*4         # Target update frequancy. original: 10^4
     data_size = 10**6                       # Data size of history. original: 10^6
@@ -18,7 +18,8 @@ class QNet:
     agent_id = -1
     num_of_actions = 4 ## CDQN
     init_flg = True
-    interval_save = 100
+    interval_save = 9000
+    save_cnt = 0
 
     def __init__(self, use_gpu, dim, agent_id):
         self.use_gpu = use_gpu
@@ -156,7 +157,7 @@ class QNet:
         self.d[4][data_index] = episode_end_flag
 
     def experience_replay(self, time, episode_end_flag):
-        if self.init_flg is True and (time % self.interval_save) == 0:
+        if self.init_flg is True:
             #model load
             if os.path.exists('./critic_target.model_' + str(self.agent_id)):
                 print("load model critic")
@@ -209,7 +210,8 @@ class QNet:
 
             self.soft_target_model_update()
 
-            if episode_end_flag is True:
+            if episode_end_flag is True and (self.save_cnt % self.interval_save) == 0:
+                self.save_cnt += 1;
                 print("critic_target model Updated :" + str(self.agent_id))
                 serializers.save_npz('./critic_target.model_' + str(self.agent_id), self.critic)
                 serializers.save_npz('./critic_target.state_' + str(self.agent_id), self.optim_critic)
@@ -281,13 +283,12 @@ class QNet:
         # q = q.data
 
         if np.random.rand() < epsilon:
-            action = np.random.uniform(-1.,1.,(1,self.num_of_actions)).astype(np.float32)
-            # action = np.zeros((1,4))
-            # action[0][0] = random.random()
-            # #action[0][1] = random.uniform(-1.,1.)
-            # action[0][1] = random.random()
-            # action[0][2] = random.random()
-            # action[0][3] = random.random()
+            #action = np.random.uniform(-1.,1.,(1,self.num_of_actions)).astype(np.float32)
+            action = np.zeros((1,4))
+            action[0][0] = random.uniform(0.,1.)
+            action[0][1] = random.uniform(-1.,1.)
+            action[0][2] = random.uniform(0.,1.)
+            action[0][3] = random.uniform(0.,1.)
             #index_action = np.random.randint(0, self.num_of_actions)
             print(" Random"),
         else:
