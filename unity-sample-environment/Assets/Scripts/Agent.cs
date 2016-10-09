@@ -110,5 +110,20 @@ namespace MLPlayer {
 
 			return tex.EncodeToPNG ();
 		}
+
+		void OnEvent(GameObject other) {
+			if (other.tag == Defs.PLAYER_TAG) {
+			   float myScale    = transform.localScale[0] + transform.localScale[1] + transform.localScale[2];
+			   float otherScale = other.transform.localScale[0] + other.transform.localScale[1] + other.transform.localScale[2];
+			}
+		}
+
+		void OnTriggerEnter(Collider other) {
+			OnEvent (other.gameObject);
+		}
+
+		void OnCollisionEnter(Collision collision) {
+			OnEvent (collision.gameObject);
+		}
 	}
 }
