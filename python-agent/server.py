@@ -67,11 +67,11 @@ class Root(object):
 class AgentServer(WebSocket):
 
     def send_action(self, action):
-        dat = msgpack.packb({"c0": str(action[0][0]), "c1": str(action[0][1])})
+        dat = msgpack.packb({"x": str(action[0][0]), "y": str(action[0][1]), "z": str(action[0][2]), "s": str(action[0][3])})
         self.send(dat, binary=True)
 
     def send_actionAndgene(self, action, gene): # add Naka
-        pck = {"c0": str(action[0][0]), "c1": str(action[0][1])}
+        pck = {"x": str(action[0][0]), "y": str(action[0][1]), "z": str(action[0][2]), "s": str(action[0][3])}
         for i in range(len(gene)):
             pck["gene"+str(i+1)] = str(gene[i])
         dat = msgpack.packb(pck)

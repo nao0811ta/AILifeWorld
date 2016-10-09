@@ -105,6 +105,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
             GetInput(out speed);
             // always move along the camera forward as it is the direction that it being aimed at
 			Vector3 desiredMove = transform.forward*m_Input.y + transform.right*m_Input.x;
+			desiredMove *= m_agent.action.scale;
 
             // get a normal for the surface that is being touched to move along it
             RaycastHit hitInfo;
@@ -122,7 +123,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
                 if (m_Jump)
                 {
-                    m_MoveDir.y = m_JumpSpeed;
+					m_MoveDir.y = m_JumpSpeed * m_agent.action.jump; // Multiply ratio of learned value
                     PlayJumpSound();
                     m_Jump = false;
                     m_Jumping = true;
@@ -213,7 +214,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
             // Read input
 			float horizontal = 0;
 			float vertical = m_agent.action.forward*power + CrossPlatformInputManager.GetAxis("Vertical");
-			m_Jump = m_Jump || m_agent.action.jump;
+			m_Jump = m_Jump || m_agent.action.canJump;
 			if (m_Jumping) {
 				m_Jump = false;
 			}
