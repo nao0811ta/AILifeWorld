@@ -69,10 +69,12 @@ namespace MLPlayer {
 
 		public void StartEpisode ()
 		{
-			//this.gameObject.active = true;
-		}
+            int index = int.Parse(name.Substring(5)) - 1;
+            SceneController.Instance.SetRawImage(index, _frameBuffer);
+            //this.gameObject.active = true;
+        }
 
-		public void EndEpisode ()
+        public void EndEpisode ()
 		{
 			state.endEpisode = true;
 		}
@@ -87,8 +89,22 @@ namespace MLPlayer {
             Energy = 100;
         }
 
+        RenderTexture _frameBuffer;
+        RenderTexture _depthBuffer;
+
         public void Start() {
-			action            = new Action ();
+
+            _frameBuffer = new RenderTexture(227, 227, 16);
+            _frameBuffer.Create();
+            _depthBuffer = new RenderTexture(32, 32, 24);
+            _depthBuffer.Create();
+       
+            foreach (var c in rgbCameras)
+                c.targetTexture = _frameBuffer;
+            foreach (var c in depthCameras)
+                c.targetTexture = _depthBuffer;
+
+            action = new Action ();
 			state             = new State ();
 
 			rgbImages   = new List<Texture2D> (rgbCameras.Capacity);
