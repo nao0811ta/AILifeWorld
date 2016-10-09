@@ -23,7 +23,8 @@ namespace MLPlayer {
 			foreach(Transform i in transform) {
 				Destroy (i.gameObject);
 			}
-			for (int i=0; i<itemCount1; i++) { // fix Naka
+#if FALSE
+            for (int i=0; i<itemCount1; i++) { // fix Naka
 			    	Vector3 pos = new Vector3 ((float)-0.3, 1, (float)24+4*i);
 
 				pos += transform.position;
@@ -64,7 +65,24 @@ namespace MLPlayer {
 					(itemPrefabs[0], pos, Quaternion.identity);
 				obj.transform.parent = transform;
 			}
-
-		}
-	}
+#else
+            for(int j = 0; j<_foodLocationRange.childCount;++j)
+            {
+                var t = _foodLocationRange.GetChild(j);
+                int count = int.Parse(t.gameObject.name.Substring(3));
+                for (int i = 0; i < count; ++i)
+                {
+                    Vector3 pos = t.position;
+                    pos.x += Random.Range(-t.localScale.x / 2, t.localScale.x / 2);
+                    pos.z += Random.Range(-t.localScale.z / 2, t.localScale.z / 2);
+                    GameObject obj = (GameObject)GameObject.Instantiate
+                        (itemPrefabs[0], pos, Quaternion.identity);
+                    obj.transform.parent = transform;
+                }
+            }
+#endif
+        }
+        [SerializeField]
+        Transform _foodLocationRange;
+    }
 }
