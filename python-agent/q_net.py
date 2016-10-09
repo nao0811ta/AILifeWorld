@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import os.path
 import copy
 import numpy as np
 from chainer import cuda, FunctionSet, Variable, optimizers, serializers
@@ -158,9 +158,18 @@ class QNet:
     def experience_replay(self, time, episode_end_flag):
         if self.init_flg is True:
             #model load
-            print("load model")
-            serializers.load_npz('./critic_target.model_' + str(self.agent_id), self.critic)
-            serializers.load_npz('./actor_target.model_' + str(self.agent_id), self.actor)
+            if os.path.exists('./critic_target.model_' + str(self.agent_id)):
+                print("load model critic")
+                serializers.load_npz('./critic_target.model_' + str(self.agent_id), self.critic)
+            if os.path.exists('./actor_target.model_' + str(self.agent_id)):
+                print("load model actor")
+                serializers.load_npz('./actor_target.model_' + str(self.agent_id), self.actor)
+            if os.path.exists('./critic_target.state_' + str(self.agent_id)):
+                print("load model optim_critic")
+                serializers.load_npz('./critic_target.state_' + str(self.agent_id), self.optim_critic)
+            if os.path.exists('./actor_target.state_' + str(self.agent_id)):
+                print("load model optim_actor")
+                serializers.load_npz('./actor_target.state_' + str(self.agent_id), self.optim_actor)
             self.init_flg = False
             
         if self.initial_exploration < time:
@@ -203,8 +212,10 @@ class QNet:
             if episode_end_flag is True:
                 print("critic_target model Updated :" + str(self.agent_id))
                 serializers.save_npz('./critic_target.model_' + str(self.agent_id), self.critic)
+                serializers.save_npz('./critic_target.state_' + str(self.agent_id), self.optim_critic)
                 print("actor_target model Updated :" + str(self.agent_id))
                 serializers.save_npz('./actor_target.model_' + str(self.agent_id), self.actor)
+                serializers.save_npz('./actor_target.state_' + str(self.agent_id), self.optim_actor)
 
 
             print "AVG_Q %f" % (np.average(q.data.get()))
