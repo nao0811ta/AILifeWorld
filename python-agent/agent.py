@@ -64,7 +64,7 @@ class Agent:
             self.reward_sum += reward
 
             if end_episode:
-                self.cnnDqnAgent.agent_end(reward)
+                self.cnnDqnAgent.agent_end(reward, self.agent_id)
                 action = self.cnnDqnAgent.agent_start(observation)  # TODO
                 self.gene = self.ga.gene_updater(gene, rewards) # add Naka
                 print self.agent_id, self.gene
@@ -76,7 +76,7 @@ class Agent:
             else:
                 action, eps, obs_array = self.cnnDqnAgent.agent_step(reward, observation)
                 agentServer.send_action(action)
-                self.cnnDqnAgent.agent_step_update(reward, action, eps, obs_array)
+                self.cnnDqnAgent.agent_step_update(reward, action, eps, obs_array, self.agent_id)
 
         self.thread_event.set()
 
