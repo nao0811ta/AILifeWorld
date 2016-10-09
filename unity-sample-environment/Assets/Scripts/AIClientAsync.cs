@@ -28,8 +28,9 @@ namespace MLPlayer {
 			th = new Thread(new ThreadStart(ExecuteInForeground));
 			th.Start(this);
 		}
-		
-		private void ExecuteInForeground() {
+
+        bool _isConnected;
+        private void ExecuteInForeground() {
 			
 			WebSocketSharp.WebSocket ws = new WebSocketSharp.WebSocket (url);
 			Debug.Log("connecting... " + url);
@@ -41,9 +42,11 @@ namespace MLPlayer {
 				
 				while (!ws.IsConnected) {
 					Thread.Sleep(1000);
+                    Debug.Log("retry.");
 				}
-				
-				while (ws.IsConnected) {
+                _isConnected = true;
+
+                while (ws.IsConnected) {
 					byte[] data = PopAgentState();
 					if(data != null) {
 						ws.Send(data);
@@ -52,8 +55,13 @@ namespace MLPlayer {
 				}
 			}
 		}
-		
-		private void OnMassage(byte[] msg) {
+
+        public bool IsConnected()
+        {
+            return _isConnected;
+        }
+
+        private void OnMassage(byte[] msg) {
 			PushAIMessage(msg);
 			if (onMessageFunc != null) {
 				onMessageFunc();
