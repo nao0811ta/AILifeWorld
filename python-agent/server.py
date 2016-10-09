@@ -66,6 +66,10 @@ class Root(object):
 
 class AgentServer(WebSocket):
 
+    def send_fin(self):
+        dat = msgpack.packb({"x": "0", "y": "0", "z": "0", "s": "0", "msg": "fin"})
+        self.send(dat, binary=True)
+
     def send_action(self, action):
         dat = msgpack.packb({"x": str(action[0][0]), "y": str(action[0][1]), "z": str(action[0][2]), "s": str(action[0][3])})
         self.send(dat, binary=True)

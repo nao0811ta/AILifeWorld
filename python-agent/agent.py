@@ -3,6 +3,7 @@ from singleton import Singleton
 from cnn_dqn_agent import CnnDqnAgent
 
 import io
+import os
 from PIL import Image
 from PIL import ImageOps
 import threading
@@ -21,6 +22,9 @@ class Agent:
     depth_image_dim = 32 * 32
     depth_image_count = 1
     gene_count = 3 # Number of gene (add Naka)
+    scale_x = 1
+    scale_y = 1
+    scale_z = 1
 
     def __init__(self, args):
         print "start to load cnn model"
@@ -42,7 +46,15 @@ class Agent:
             d = (Image.open(io.BytesIO(bytearray(dat['depth'][i]))))
             depth.append(np.array(ImageOps.grayscale(d)).reshape(self.depth_image_dim))
 
-        observation = {"image": image, "depth": depth}
+        observation = {"image": image, "depth": depth, "scale": [dat['x_s'], dat['y_s'], dat['z_s']]}
+
+        self.scale_x = dat['x_s']
+        self.scale_y = dat['y_s']
+        self.scale_z = dat['z_s']
+
+        # print 'scale'
+        # print observation['scale']
+
         gene = []  # add Naka
         for i in xrange(len(dat['gene'])):
             gene.append(dat['gene'][i])
@@ -56,8 +68,9 @@ class Agent:
             self.agent_initialized = True
             action = self.cnnDqnAgent.agent_start(observation)
             agentServer.send_action(action)
-            with open(self.args.log_file, 'w') as the_file:
-                the_file.write('cycle, episode_reward_sum \n')
+            if not os.path.exists(self.args.log_file):
+                with open(self.args.log_file, 'w') as the_file:
+                    the_file.write('cycle, episode_reward_sum \n')
         else:
             self.thread_event.wait()
             self.cycle_counter += 1
@@ -71,6 +84,9 @@ class Agent:
                 agentServer.send_actionAndgene(action, self.gene[self.agent_id]) # add Naka
                 with open(self.args.log_file, 'a') as the_file:
                     the_file.write(str(self.cycle_counter) +
+                                   ',' + str(self.scale_x) +
+                                   ',' + str(self.scale_y) +
+                                   ',' + str(self.scale_z) +
                                    ',' + str(self.reward_sum) + '\n')
                 self.reward_sum = 0
             else:

@@ -10,14 +10,15 @@ import random
 class QNet:
     # Hyper-Parameters
     gamma = 0.99                            # Discount factor
-    initial_exploration = 5*10            # Initial exploratoin. original: 5x10^4
+    initial_exploration = 5*10              # Initial exploratoin. original: 5x10^4
     replay_size = 32                        # Replay (batch) size
-    target_model_update_freq = 10*4        # Target update frequancy. original: 10^4
+    target_model_update_freq = 10*4         # Target update frequancy. original: 10^4
     data_size = 10**6                       # Data size of history. original: 10^6
     hist_size = 1                           #original: 4
     agent_id = -1
     num_of_actions = 4 ## CDQN
     init_flg = True
+    interval_save = 100
 
     def __init__(self, use_gpu, dim, agent_id):
         self.use_gpu = use_gpu
@@ -141,8 +142,7 @@ class QNet:
         data_index = time % self.data_size
 
         self.agent_id = agentid        
-        print("stock agent id:" + str(self.agent_id))
-
+        # print("stock agent id:" + str(self.agent_id))
 
         if episode_end_flag is True:
             self.d[0][data_index] = state
@@ -156,7 +156,7 @@ class QNet:
         self.d[4][data_index] = episode_end_flag
 
     def experience_replay(self, time, episode_end_flag):
-        if self.init_flg is True:
+        if self.init_flg is True and (time % self.interval_save) == 0:
             #model load
             if os.path.exists('./critic_target.model_' + str(self.agent_id)):
                 print("load model critic")

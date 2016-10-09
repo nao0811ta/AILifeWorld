@@ -22,12 +22,14 @@ class CnnDqnAgent(object):
     model_type = 'alexnet'
     image_feature_dim = 256 * 6 * 6
     image_feature_count = 1
+    scale_dim = 3
 
     def _observation_to_featurevec(self, observation):
         # TODO clean
         if self.image_feature_count == 1:
             return np.r_[self.feature_extractor.feature(observation["image"][0]),
-                         observation["depth"][0]]
+                         observation["depth"][0],
+                         observation["scale"]]
         elif self.image_feature_count == 4:
             return np.r_[self.feature_extractor.feature(observation["image"][0]),
                          self.feature_extractor.feature(observation["image"][1]),
@@ -36,7 +38,8 @@ class CnnDqnAgent(object):
                          observation["depth"][0],
                          observation["depth"][1],
                          observation["depth"][2],
-                         observation["depth"][3]]
+                         observation["depth"][3],
+                         observation["scale"]]
         else:
             print("not supported: number of camera")
 
@@ -44,7 +47,7 @@ class CnnDqnAgent(object):
         self.use_gpu = options['use_gpu']
         self.depth_image_dim = options['depth_image_dim']
         self.agent_id = options['agent_id']
-        self.q_net_input_dim = self.image_feature_dim * self.image_feature_count + self.depth_image_dim
+        self.q_net_input_dim = self.image_feature_dim * self.image_feature_count + self.depth_image_dim + self.scale_dim
 
         if os.path.exists(self.cnn_feature_extractor):
             print("loading... " + self.cnn_feature_extractor),

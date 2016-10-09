@@ -6,6 +6,7 @@ using System.Threading;
 
 namespace MLPlayer {
 	public class Agent : MonoBehaviour {
+		[SerializeField] int agentId;
 		[SerializeField] List<Camera> rgbCameras;
 		[SerializeField] List<Camera> depthCameras;
 		[SerializeField] List<Texture2D> rgbImages;
@@ -15,6 +16,10 @@ namespace MLPlayer {
 
 		public Action action { set; get; }
 		public State state { set; get; }
+
+		public int GetAgentId(){
+			return agentId;
+		}
 
 		public void AddReward (float reward)
 		{
@@ -50,6 +55,10 @@ namespace MLPlayer {
 			if (Energy <= 0) {
 			   this.gameObject.active = false;
 			}
+			state.x_s = (this.gameObject.transform.localScale.x - 3) / 3.0f;
+			state.y_s = (this.gameObject.transform.localScale.y - 3) / 3.0f;
+			state.z_s = (this.gameObject.transform.localScale.z - 3) / 3.0f;
+
 			state.image = new byte[rgbCameras.Count][];
 			for (int i=0; i<rgbCameras.Count; i++) {
 				Texture2D txture = rgbImages [i];
