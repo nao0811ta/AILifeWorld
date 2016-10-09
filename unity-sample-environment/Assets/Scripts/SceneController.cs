@@ -112,6 +112,7 @@ namespace MLPlayer {
 			for (int i=0; i<agents.Count; i++) {
 				agents[i].transform.position = firstLocation[i];
 				agents[i].StartEpisode ();
+				agents[i].Energy = 0;
 			}
 		}
 
@@ -136,10 +137,12 @@ namespace MLPlayer {
 					agentReceiveCounter = 0;
 					received.Reset ();
 					for (int i = 0; i < agents.Count; i++) {
+					    	Debug.Log(agents.Count);
 						agents [i].UpdateState ();
 
-						agents [i].state.rewards = new float[NumberOfParameter];  // Set rewards
-						for (int j=0; j<NumberOfParameter; j++) {
+						agents [i].state.rewards = new float[agents.Count];  // Set rewards
+						float[] rewards = new float[agents.Count];
+						for (int j=0; j<agents.Count; j++) {
 						    agents [i].state.rewards[j] = agents[j].state.reward;
 						}
 

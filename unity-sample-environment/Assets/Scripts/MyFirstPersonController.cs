@@ -252,20 +252,37 @@ namespace UnityStandardAssets.Characters.FirstPerson
         }
 
 
-        private void OnControllerColliderHit(ControllerColliderHit hit)
-        {
-            Rigidbody body = hit.collider.attachedRigidbody;
-            //dont move the rigidbody if the character is on top of it
-            if (m_CollisionFlags == CollisionFlags.Below)
-            {
-                return;
-            }
-
-            if (body == null || body.isKinematic)
-            {
-                return;
-            }
-            body.AddForceAtPosition(m_CharacterController.velocity*0.1f, hit.point, ForceMode.Impulse);
+	private void OnControllerColliderHit(ControllerColliderHit hit)
+       	{
+           Rigidbody body = hit.collider.attachedRigidbody;
+           //dont move the rigidbody if the character is on top of it
+           if (m_CollisionFlags == CollisionFlags.Below)
+           {
+               return;
+           }
+           if (body == null || body.isKinematic)
+           {
+               if (hit.gameObject.name.Contains("Agent"))
+               {
+		   float thisScale  = 0.0f;
+		   float otherScale = 0.0f;
+		   for (int i=0; i<3; i++) {
+		       thisScale  += this.transform.localScale[i];
+		       otherScale += hit.gameObject.transform.localScale[i];
+		   }
+		   if (thisScale > otherScale) {
+		      this.GetComponent<MLPlayer.Agent>().state.reward += 1;
+		   } else if (thisScale < otherScale) {
+		      hit.gameObject.GetComponent<MLPlayer.Agent>().state.reward -= 1;
+		      hit.gameObject.GetComponent<MLPlayer.Agent>().Energy       -= (int)((otherScale + hit.gameObject.GetComponent<MLPlayer.Agent>().Energy) * 0.3);
+		      Debug.Log(hit.gameObject.GetComponent<MLPlayer.Agent>().Energy);
+		      hit.gameObject.transform.position -= new Vector3(-3, 0, -3);
+		   }
+		   
+               }
+               return;
+           }
+           body.AddForceAtPosition(m_CharacterController.velocity*0.1f, hit.point, ForceMode.Impulse);
         }
     }
 }

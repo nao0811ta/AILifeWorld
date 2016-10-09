@@ -73,7 +73,7 @@ class AgentServer(WebSocket):
             depth.append(np.array(ImageOps.grayscale(d)).reshape(self.depth_image_dim))
         observation = {"image": image, "depth": depth}
         gene = [] # add Naka
-        for i in xrange(self.gene_count):
+        for i in xrange(len(dat['gene'])):
             gene.append(dat['gene'][i])
         reward   = dat['reward']
         rewards  = dat['rewards']  # add Naka
