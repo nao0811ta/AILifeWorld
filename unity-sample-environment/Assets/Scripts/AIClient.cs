@@ -32,8 +32,7 @@ namespace MLPlayer
 			th = new Thread(new ThreadStart(ExecuteInForeground));
 			th.Start(this);
 		}
-
-        bool _isConnected;
+		
 		private void ExecuteInForeground() {
 			
 			WebSocketSharp.WebSocket ws = new WebSocketSharp.WebSocket (url);
@@ -46,9 +45,8 @@ namespace MLPlayer
 				
 				while (!ws.IsConnected) {
 					Thread.Sleep(1000);
-                    Debug.Log("retry.");
-                }
-                _isConnected = true;
+				}
+				
 				while (ws.IsConnected) {
 					byte[] data = PopAgentState();
 					if(data != null) {
@@ -59,11 +57,6 @@ namespace MLPlayer
 			}
 		}
 		
-        public bool IsConnected()
-        {
-            return _isConnected;
-        }
-
 		private void MassageCallBack(byte[] msg) {
 			messageCallBack(msg, agent);
 		}
