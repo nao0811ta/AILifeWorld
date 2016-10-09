@@ -8,7 +8,7 @@ namespace MLPlayer {
 		void OnEvent(GameObject other) {
 			if (other.tag == Defs.PLAYER_TAG) {
 				other.GetComponent<Agent> ().AddReward (reward);
-				Debug.Log ("reward:" + reward.ToString ());
+				//Debug.Log ("reward:" + reward.ToString ());
 				gameObject.SetActive (false);
 			}
 		}

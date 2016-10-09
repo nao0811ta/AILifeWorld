@@ -41,7 +41,8 @@ class Agent:
             d = (Image.open(io.BytesIO(bytearray(dat['depth'][i]))))
             depth.append(np.array(ImageOps.grayscale(d)).reshape(self.depth_image_dim))
 
-        observation = {"image": image, "depth": depth}
+        observation = {"image": image, "depth": depth, "scale": [dat['x_s'], dat['y_s'], dat['z_s']]}
+
         gene = []  # add Naka
         for i in xrange(len(dat['gene'])):
             gene.append(dat['gene'][i])
