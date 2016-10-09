@@ -52,6 +52,7 @@ namespace MLPlayer {
 
 		public void UpdateState ()
 		{
+			Debug.Log(Energy);
 			if (Energy <= 0) {
 			   this.gameObject.active = false;
 			}
@@ -81,6 +82,7 @@ namespace MLPlayer {
             int index = int.Parse(name.Substring(5)) - 1;
             SceneController.Instance.SetRawImage(index, _frameBuffer);
             this.gameObject.active = true;
+	    Energy = 100;
         }
 
         public void EndEpisode ()

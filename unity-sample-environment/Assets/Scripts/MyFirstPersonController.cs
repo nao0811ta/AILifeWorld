@@ -273,11 +273,11 @@ namespace UnityStandardAssets.Characters.FirstPerson
                         thisScale += this.transform.localScale[i];
                         otherScale += hit.gameObject.transform.localScale[i];
                     }
-                    if (thisScale > otherScale)
+                    if (thisScale < otherScale)
                     {
                         this.GetComponent<MLPlayer.Agent>().state.reward += 1;
                     }
-                    else if (thisScale < otherScale)
+                    else if (thisScale > otherScale)
                     {
                         Debug.Log("damage.");
                         hit.gameObject.GetComponent<MLPlayer.Agent>().state.reward -= 1;

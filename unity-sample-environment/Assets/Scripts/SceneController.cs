@@ -162,7 +162,6 @@ namespace MLPlayer {
 					agentReceiveCounter = 0;
 					received.Reset ();
 					for (int i = 0; i < agents.Count; i++) {
-					    	Debug.Log(agents.Count);
 						agents [i].UpdateState ();
 
 						agents [i].state.rewards = new float[agents.Count];  // Set rewards
