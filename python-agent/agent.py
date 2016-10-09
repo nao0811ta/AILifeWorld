@@ -27,7 +27,8 @@ class Agent:
         self.args = args
         self.cnnDqnAgent = CnnDqnAgent(
             use_gpu=self.args.gpu,
-            depth_image_dim=self.depth_image_dim * self.depth_image_count)
+            depth_image_dim=self.depth_image_dim * self.depth_image_count,
+            agent_id=self.agent_id)
         print 'finish loading cnn model'
         self.cnnDqnAgent.agent_init()
         print 'finish init cnn dqn agent'
@@ -63,7 +64,7 @@ class Agent:
             self.reward_sum += reward
 
             if end_episode:
-                self.cnnDqnAgent.agent_end(reward)
+                self.cnnDqnAgent.agent_end(reward, self.agent_id)
                 action = self.cnnDqnAgent.agent_start(observation)  # TODO
                 self.gene = self.ga.gene_updater(gene, rewards) # add Naka
                 print self.agent_id, self.gene
@@ -75,7 +76,7 @@ class Agent:
             else:
                 action, eps, obs_array = self.cnnDqnAgent.agent_step(reward, observation)
                 agentServer.send_action(action)
-                self.cnnDqnAgent.agent_step_update(reward, action, eps, obs_array)
+                self.cnnDqnAgent.agent_step_update(reward, action, eps, obs_array, self.agent_id)
 
         self.thread_event.set()
 

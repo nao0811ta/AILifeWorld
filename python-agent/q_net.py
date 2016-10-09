@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-
+import os.path
 import copy
 import numpy as np
-from chainer import cuda, FunctionSet, Variable, optimizers
+from chainer import cuda, FunctionSet, Variable, optimizers, serializers
 import chainer.functions as F
 import random
 
@@ -10,19 +10,22 @@ import random
 class QNet:
     # Hyper-Parameters
     gamma = 0.99                            # Discount factor
-    initial_exploration = 5*10**4            # Initial exploratoin. original: 5x10^4
+    initial_exploration = 5*10            # Initial exploratoin. original: 5x10^4
     replay_size = 32                        # Replay (batch) size
-    target_model_update_freq = 10**4        # Target update frequancy. original: 10^4
+    target_model_update_freq = 10*4        # Target update frequancy. original: 10^4
     data_size = 10**6                       # Data size of history. original: 10^6
     hist_size = 1                           #original: 4
+    agent_id = -1
     num_of_actions = 4 ## CDQN
+    init_flg = True
 
-    def __init__(self, use_gpu, dim):
+    def __init__(self, use_gpu, dim, agent_id):
         self.use_gpu = use_gpu
         #self.num_of_actions = len(enable_controller)
         #self.enable_controller = enable_controller
         self.dim = dim
         self.num_of_states = self.dim*self.hist_size
+        self.agent_id = agent_id
 
         print("Initializing Q-Network...")
 
@@ -133,9 +136,13 @@ class QNet:
         return loss, q
 
     def stock_experience(self, time,
-                        state, action, reward, state_dash,
+                        state, action, reward, state_dash, agentid, 
                         episode_end_flag):
         data_index = time % self.data_size
+
+        self.agent_id = agentid        
+        print("stock agent id:" + str(self.agent_id))
+
 
         if episode_end_flag is True:
             self.d[0][data_index] = state
@@ -148,7 +155,23 @@ class QNet:
             self.d[3][data_index] = state_dash
         self.d[4][data_index] = episode_end_flag
 
-    def experience_replay(self, time):
+    def experience_replay(self, time, episode_end_flag):
+        if self.init_flg is True:
+            #model load
+            if os.path.exists('./critic_target.model_' + str(self.agent_id)):
+                print("load model critic")
+                serializers.load_npz('./critic_target.model_' + str(self.agent_id), self.critic)
+            if os.path.exists('./actor_target.model_' + str(self.agent_id)):
+                print("load model actor")
+                serializers.load_npz('./actor_target.model_' + str(self.agent_id), self.actor)
+            if os.path.exists('./critic_target.state_' + str(self.agent_id)):
+                print("load model optim_critic")
+                serializers.load_npz('./critic_target.state_' + str(self.agent_id), self.optim_critic)
+            if os.path.exists('./actor_target.state_' + str(self.agent_id)):
+                print("load model optim_actor")
+                serializers.load_npz('./actor_target.state_' + str(self.agent_id), self.optim_actor)
+            self.init_flg = False
+            
         if self.initial_exploration < time:
             # Pick up replay_size number of samples from the Data
             if time < self.data_size:  # during the first sweep of the History Data
@@ -186,8 +209,18 @@ class QNet:
 
             self.soft_target_model_update()
 
+            if episode_end_flag is True:
+                print("critic_target model Updated :" + str(self.agent_id))
+                serializers.save_npz('./critic_target.model_' + str(self.agent_id), self.critic)
+                serializers.save_npz('./critic_target.state_' + str(self.agent_id), self.optim_critic)
+                print("actor_target model Updated :" + str(self.agent_id))
+                serializers.save_npz('./actor_target.model_' + str(self.agent_id), self.actor)
+                serializers.save_npz('./actor_target.state_' + str(self.agent_id), self.optim_actor)
+
+
             print "AVG_Q %f" % (np.average(q.data.get()))
             print("loss " + str(loss.data))
+
             # if self.use_gpu >= 0:
             #     s_replay = cuda.to_gpu(s_replay)
             #     s_dash_replay = cuda.to_gpu(s_dash_replay)
