@@ -77,15 +77,19 @@ namespace MLPlayer {
 			state.endEpisode = true;
 		}
 
-		public void Start() {
-			float range_start = 1.0f;
-			float range_end   = 5.0f;
+        void Awake()
+        {
+            float range_start = 1.0f;
+            float range_end = 5.0f;
+            mygene = new Vector3(Random.Range(range_start, range_end),
+                                        Random.Range(range_start, range_end),
+                                                        Random.Range(range_start, range_end));
+            Energy = 100;
+        }
+
+        public void Start() {
 			action            = new Action ();
 			state             = new State ();
-			mygene            = new Vector3(Random.Range(range_start,range_end), 
-				                        Random.Range(range_start,range_end), 
-                                                        Random.Range(range_start,range_end));
-			Energy            = 100;
 
 			rgbImages   = new List<Texture2D> (rgbCameras.Capacity);
 			foreach (var cam in rgbCameras) {

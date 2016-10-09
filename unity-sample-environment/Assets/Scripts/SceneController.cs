@@ -112,7 +112,6 @@ namespace MLPlayer {
 			for (int i=0; i<agents.Count; i++) {
 				agents[i].transform.position = firstLocation[i];
 				agents[i].StartEpisode ();
-				agents[i].Energy = 0;
 			}
 		}
 
