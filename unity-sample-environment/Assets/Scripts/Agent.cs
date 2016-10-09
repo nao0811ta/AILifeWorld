@@ -52,6 +52,7 @@ namespace MLPlayer {
 
 		public void UpdateState ()
 		{
+			Debug.Log(Energy);
 			if (Energy <= 0) {
 			   this.gameObject.active = false;
 			}
@@ -81,6 +82,7 @@ namespace MLPlayer {
             int index = int.Parse(name.Substring(5)) - 1;
             SceneController.Instance.SetRawImage(index, _frameBuffer);
             this.gameObject.active = true;
+	    Energy = 100;
         }
 
         public void EndEpisode ()
@@ -143,6 +145,21 @@ namespace MLPlayer {
 			RenderTexture.active = currentRT;
 
 			return tex.EncodeToPNG ();
+		}
+
+		void OnEvent(GameObject other) {
+			if (other.tag == Defs.PLAYER_TAG) {
+			   float myScale    = transform.localScale[0] + transform.localScale[1] + transform.localScale[2];
+			   float otherScale = other.transform.localScale[0] + other.transform.localScale[1] + other.transform.localScale[2];
+			}
+		}
+
+		void OnTriggerEnter(Collider other) {
+			OnEvent (other.gameObject);
+		}
+
+		void OnCollisionEnter(Collision collision) {
+			OnEvent (collision.gameObject);
 		}
 	}
 }
