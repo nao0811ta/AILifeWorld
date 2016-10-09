@@ -10,7 +10,7 @@ import random
 class QNet:
     # Hyper-Parameters
     gamma = 0.99                            # Discount factor
-    initial_exploration = 5*10**3            # Initial exploratoin. original: 5x10^4
+    initial_exploration = 5*10**4            # Initial exploratoin. original: 5x10^4
     replay_size = 32                        # Replay (batch) size
     target_model_update_freq = 10*4         # Target update frequancy. original: 10^4
     data_size = 10**6                       # Data size of history. original: 10^6
@@ -18,7 +18,7 @@ class QNet:
     agent_id = -1
     num_of_actions = 4 ## CDQN
     init_flg = True
-    interval_save = 9000
+    interval_save = 100
     save_cnt = 0
 
     def __init__(self, use_gpu, dim, agent_id):
@@ -211,13 +211,14 @@ class QNet:
             self.soft_target_model_update()
 
             if episode_end_flag is True and (self.save_cnt % self.interval_save) == 0:
-                self.save_cnt += 1;
                 print("critic_target model Updated :" + str(self.agent_id))
                 serializers.save_npz('./critic_target.model_' + str(self.agent_id), self.critic)
                 serializers.save_npz('./critic_target.state_' + str(self.agent_id), self.optim_critic)
                 print("actor_target model Updated :" + str(self.agent_id))
                 serializers.save_npz('./actor_target.model_' + str(self.agent_id), self.actor)
                 serializers.save_npz('./actor_target.state_' + str(self.agent_id), self.optim_actor)
+
+            self.save_cnt += 1;
 
 
             print "AVG_Q %f" % (np.average(q.data.get()))

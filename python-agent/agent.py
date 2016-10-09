@@ -84,10 +84,10 @@ class Agent:
                 agentServer.send_actionAndgene(action, self.gene[self.agent_id]) # add Naka
                 with open(self.args.log_file, 'a') as the_file:
                     the_file.write(str(self.cycle_counter) +
+                                   ',' + str(self.reward_sum) +
                                    ',' + str(self.scale_x) +
                                    ',' + str(self.scale_y) +
-                                   ',' + str(self.scale_z) +
-                                   ',' + str(self.reward_sum) + '\n')
+                                   ',' + str(self.scale_z) + '\n')
                 self.reward_sum = 0
             else:
                 action, eps, obs_array = self.cnnDqnAgent.agent_step(reward, observation)
