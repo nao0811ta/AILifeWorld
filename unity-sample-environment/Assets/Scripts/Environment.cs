@@ -4,9 +4,6 @@ using System.Collections.Generic;
 namespace MLPlayer {
 	public class Environment : MonoBehaviour {
 
-        [SerializeField]
-        Transform[] _foodLocationRange;
-
 		int itemCount1  = 4;
 		int itemCount2  = 10; // add Naka
 		float areaSize  = 15; // add Naka
@@ -14,6 +11,7 @@ namespace MLPlayer {
 
 		// Use this for initialization
 		void Start () {
+		
 		}
 		
 		// Update is called once per frame
@@ -25,8 +23,7 @@ namespace MLPlayer {
 			foreach(Transform i in transform) {
 				Destroy (i.gameObject);
 			}
-#if LEGACY
-            for (int i=0; i<itemCount1; i++) { // fix Naka
+			for (int i=0; i<itemCount1; i++) { // fix Naka
 			    	Vector3 pos = new Vector3 ((float)-0.3, 1, (float)24+4*i);
 
 				pos += transform.position;
@@ -67,21 +64,7 @@ namespace MLPlayer {
 					(itemPrefabs[0], pos, Quaternion.identity);
 				obj.transform.parent = transform;
 			}
-#else
-            foreach(var t in _foodLocationRange)
-            {
-                int count = int.Parse(t.gameObject.name.Substring(3));
-                for(int i=0;i<count;++i)
-                {
-                    Vector3 pos = t.position;
-                    pos.x += Random.Range(-t.localScale.x / 2, t.localScale.x / 2);
-                    pos.z += Random.Range(-t.localScale.z / 2, t.localScale.z / 2);
-                    GameObject obj = (GameObject)GameObject.Instantiate
-                        (itemPrefabs[0], pos, Quaternion.identity);
-                    obj.transform.parent = transform;
-                }
-            }
-#endif
-        }
-    }
+
+		}
+	}
 }

@@ -44,7 +44,7 @@ class Agent:
 
         observation = {"image": image, "depth": depth}
         gene = []  # add Naka
-        for i in xrange(self.gene_count):
+        for i in xrange(len(dat['gene'])):
             gene.append(dat['gene'][i])
         reward = dat['reward']
         rewards  = dat['rewards']  # add Naka
