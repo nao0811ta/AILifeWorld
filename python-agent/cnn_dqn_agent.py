@@ -14,7 +14,7 @@ class CnnDqnAgent(object):
     policy_frozen = False
     epsilon_delta = 1.0 / 10 ** 4.4
     min_eps = 0.1
-
+    agent_id = -1
     actions = [0, 1, 2]
 
     cnn_feature_extractor = 'alexnet_feature_extractor.pickle'
@@ -22,12 +22,14 @@ class CnnDqnAgent(object):
     model_type = 'alexnet'
     image_feature_dim = 256 * 6 * 6
     image_feature_count = 1
+    scale_dim = 3
 
     def _observation_to_featurevec(self, observation):
         # TODO clean
         if self.image_feature_count == 1:
             return np.r_[self.feature_extractor.feature(observation["image"][0]),
-                         observation["depth"][0]]
+                         observation["depth"][0],
+                         observation["scale"]]
         elif self.image_feature_count == 4:
             return np.r_[self.feature_extractor.feature(observation["image"][0]),
                          self.feature_extractor.feature(observation["image"][1]),
@@ -36,27 +38,32 @@ class CnnDqnAgent(object):
                          observation["depth"][0],
                          observation["depth"][1],
                          observation["depth"][2],
-                         observation["depth"][3]]
+                         observation["depth"][3],
+                         observation["scale"]]
         else:
             print("not supported: number of camera")
 
-    def agent_init(self, **options):
+    def __init__(self, **options):
         self.use_gpu = options['use_gpu']
         self.depth_image_dim = options['depth_image_dim']
-        self.q_net_input_dim = self.image_feature_dim * self.image_feature_count + self.depth_image_dim
+        self.agent_id = options['agent_id']
+        self.q_net_input_dim = self.image_feature_dim * self.image_feature_count + self.depth_image_dim + self.scale_dim
 
         if os.path.exists(self.cnn_feature_extractor):
             print("loading... " + self.cnn_feature_extractor),
             self.feature_extractor = pickle.load(open(self.cnn_feature_extractor))
             print("done")
         else:
-            self.feature_extractor = CnnFeatureExtractor(self.use_gpu, self.model, self.model_type, self.image_feature_dim)
+            self.feature_extractor = CnnFeatureExtractor(self.use_gpu, self.model, self.model_type,
+                                                         self.image_feature_dim)
             pickle.dump(self.feature_extractor, open(self.cnn_feature_extractor, 'w'))
             print("pickle.dump finished")
 
         self.time = 0
         self.epsilon = 1.0  # Initial exploratoin rate
-        self.q_net = QNet(self.use_gpu, self.actions, self.q_net_input_dim)
+
+    def agent_init(self):
+        self.q_net = QNet(self.use_gpu, self.q_net_input_dim, self.agent_id)
 
     def agent_start(self, observation):
         obs_array = self._observation_to_featurevec(observation)
@@ -69,7 +76,7 @@ class CnnDqnAgent(object):
             state_ = cuda.to_gpu(state_)
 
         # Generate an Action e-greedy
-        action, q_now = self.q_net.e_greedy(state_, self.epsilon)
+        action = self.q_net.e_greedy(state_, self.epsilon)
         return_action = action
 
         # Update for next step
@@ -106,36 +113,40 @@ class CnnDqnAgent(object):
                     self.epsilon = self.min_eps
                 eps = self.epsilon
             else:  # Initial Exploation Phase
-                print("Initial Exploration : %d/%d steps" % (self.time, self.q_net.initial_exploration)),
+                print("Initial Exploration : %d/%d steps" % (self.time, self.q_net.initial_exploration))
                 eps = 1.0
         else:  # Evaluation
             print("Policy is Frozen")
             eps = 0.05
 
         # Generate an Action by e-greedy action selection
-        action, q_now = self.q_net.e_greedy(state_, eps)
+        action = self.q_net.e_greedy(state_, eps)
 
-        return action, eps, q_now, obs_array
+        return action, eps, obs_array
 
-    def agent_step_update(self, reward, action, eps, q_now, obs_array):
+    def agent_step_update(self, reward, action, eps, obs_array, agentid):
         # Learning Phase
         if self.policy_frozen is False:  # Learning ON/OFF
-            self.q_net.stock_experience(self.time, self.last_state, self.last_action, reward, self.state, False)
-            self.q_net.experience_replay(self.time)
+            #print("setp_update agent_id:"+str(agentid))
+            self.q_net.stock_experience(self.time, self.last_state, self.last_action, reward, self.state, agentid, False)
+            self.q_net.experience_replay(self.time, False)
 
         # Target model update
-        if self.q_net.initial_exploration < self.time and np.mod(self.time, self.q_net.target_model_update_freq) == 0:
-            print("Model Updated")
-            self.q_net.target_model_update()
+        # if self.q_net.initial_exploration < self.time and np.mod(self.time, self.q_net.target_model_update_freq) == 0:
+        #     print("Model Updated")
+        #     self.q_net.target_model_update()
 
         # Simple text based visualization
-        if self.use_gpu >= 0:
-            q_max = np.max(q_now.get())
-        else:
-            q_max = np.max(q_now)
+        # if self.use_gpu >= 0:
+        #     q_max = np.max(self.q_now.get())
+        # else:
+        #     q_max = np.max(self.q_now)
+        #
+        # print('Step:%d  Action:%d  Reward:%.1f  Epsilon:%.6f  Q_max:%3f' % (
+        #     self.time, self.q_net.action_to_index(action), reward, eps, q_max))
 
-        print('Step:%d  Action:%d  Reward:%.1f  Epsilon:%.6f  Q_max:%3f' % (
-            self.time, self.q_net.action_to_index(action), reward, eps, q_max))
+        # Simple text based visualization
+        print 'Time Step %d / ACTION  %s / REWARD %.5f / EPSILON  %.5f' % (self.time,str(action[0]),reward,eps)
 
         # Updates for next step
         self.last_observation = obs_array
@@ -145,19 +156,19 @@ class CnnDqnAgent(object):
             self.last_state = self.state.copy()
             self.time += 1
 
-    def agent_end(self, reward):  # Episode Terminated
+    def agent_end(self, reward, agentid):  # Episode Terminated
         print('episode finished. Reward:%.1f / Epsilon:%.6f' % (reward, self.epsilon))
 
         # Learning Phase
         if self.policy_frozen is False:  # Learning ON/OFF
-            self.q_net.stock_experience(self.time, self.last_state, self.last_action, reward, self.last_state,
+            self.q_net.stock_experience(self.time, self.last_state, self.last_action, reward, self.last_state, agentid,
                                         True)
-            self.q_net.experience_replay(self.time)
+            self.q_net.experience_replay(self.time, True)
 
         # Target model update
-        if self.q_net.initial_exploration < self.time and np.mod(self.time, self.q_net.target_model_update_freq) == 0:
-            print("Model Updated")
-            self.q_net.target_model_update()
+        # if self.q_net.initial_exploration < self.time and np.mod(self.time, self.q_net.target_model_update_freq) == 0:
+        #     print("Model Updated")
+        #     self.q_net.target_model_update()
 
         # Time count
         if self.policy_frozen is False:

@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using MsgPack;
@@ -41,6 +40,7 @@ namespace MLPlayer {
 		private float episodeStartTime = 0f;
 		private int agentReceiveCounter;
 		MsgPack.BoxingPacker packer = new MsgPack.BoxingPacker ();
+		private int NumberOfParameter = 3; // add Naka
 		
 		public static ManualResetEvent received = new ManualResetEvent(false);
 		private Mutex mutAgent;
@@ -49,79 +49,66 @@ namespace MLPlayer {
 			return "ws://" + domain + ":" + port.ToString () + "/" + path;
 		}
 
-
-        System.Collections.IEnumerator Start()
+        UnityEngine.UI.RawImage[] rawImages = null;
+        public void SetRawImage(int index, RenderTexture tex)
         {
-            clients = new List<IAIClient>();
-            firstLocation = new List<Vector3>();
-            foreach (var agent in agents)
-            {
-                firstLocation.Add(agent.transform.position);
-            }
+            if (rawImages == null)
+                CreateRawImages();
+            rawImages[index].texture = tex;
+        }
 
-            if (communicationMode == CommunicationMode.SYNC)
+        void CreateRawImages()
+        {
+            rawImages = new UnityEngine.UI.RawImage[agents.Count];
+            for (int i = 0; i < agents.Count; ++i)
             {
-                int cnt = 0;
-                foreach (var agent in agents)
-                {
-                    clients.Add(
-                        new AIClient(GetUrl(domain, port + cnt, path),
-                                          OnMessage, agent));
-                    cnt++;
-                }
+                var a = agents[i];
+                var v = GameObject.Instantiate(_viewPrefab);
+                v.transform.SetParent(_canvas.transform);
+                var t = v.GetComponent<RectTransform>();
+                Vector3 p = new Vector3(50, 300 - 80 * i, 0);
+                t.position = p;
+                rawImages[i] = v.GetComponent<UnityEngine.UI.RawImage>();
             }
-            else {
-                Application.targetFrameRate = (int)Mathf.Max(60.0f, 60.0f * timeScale);
-                int cnt = 0;
-                foreach (var agent in agents)
-                {
-                    clients.Add(new AIClientAsync(GetUrl(domain, port + cnt, path)));
-                    cnt++;
-                }
-            }
+        }
 
-            enabled = false;
-            foreach (var agent in agents)
-            {
-                agent.gameObject.SetActive(false);
-            }
-            while (true)
-            {
-                bool isInitialized = true;
-                foreach (var c in clients)
-                {
-                    if (c.IsConnected() == false)
-                    {
-                        isInitialized = false;
-                        break;
-                    }
-                }
-                if (isInitialized)
-                {
-                    break;
-                }
-                else
-                {
-                    yield return null;
-                }
-            }
-            foreach (var agent in agents)
-            {
-                agent.gameObject.SetActive(true);
-            }
-            enabled = true;
+        void Start () {
+            if (rawImages == null)
+                CreateRawImages();
 
-            StartNewEpisode();
-            lastSendTime = -cycleTimeStepSize;
+            clients = new List<IAIClient> ();
+			firstLocation = new List<Vector3> ();
+			foreach (var agent in agents) {
+				firstLocation.Add (agent.transform.position);
+			}
 
-            mutAgent = new Mutex();
+			if (communicationMode == CommunicationMode.SYNC) {
+				int cnt = 0;
+				foreach (var agent in agents) {
+					clients.Add (
+						new AIClient (GetUrl(domain, port + cnt, path),
+					                      OnMessage, agent));
+					cnt++;
+				}
+			} else {
+				Application.targetFrameRate = (int)Mathf.Max(60.0f, 60.0f * timeScale);
+				int cnt = 0;
+				foreach (var agent in agents) {
+					clients.Add (new AIClientAsync (GetUrl(domain, port + cnt, path)));
+					cnt++;
+				}
+			}
 
-            if (communicationMode == CommunicationMode.ASYNC && agents.Count > 1)
-            {
-                Debug.LogError("not supprted multi agent ASYNC mode");
-                throw new System.NotImplementedException();
-                Application.Quit();
-            }
+			StartNewEpisode ();
+			lastSendTime = -cycleTimeStepSize;
+			
+			mutAgent = new Mutex();
+
+			if (communicationMode == CommunicationMode.ASYNC && agents.Count > 1) {
+				Debug.LogError ("not supprted multi agent ASYNC mode");
+				throw new System.NotImplementedException ();
+				Application.Quit();
+			}
         }
 
         void OnMessage(byte[] msg, Agent agent) {
@@ -130,7 +117,9 @@ namespace MLPlayer {
 			mutAgent.ReleaseMutex();
 
 			agent.action.Set ((Dictionary<System.Object, System.Object>)packer.Unpack (msg));
-			
+			if (agent.state.endEpisode) {
+			   agent.SetGene ((Dictionary<System.Object, System.Object>)packer.Unpack (msg)); // add Naka
+			}
 			if (agentReceiveCounter == agents.Count) {
 				received.Set();
 			}
@@ -153,7 +142,7 @@ namespace MLPlayer {
 		}
 
 		void FixedUpdate() {
-            if (communicationMode == CommunicationMode.SYNC) {
+			if (communicationMode == CommunicationMode.SYNC) {
 				Time.timeScale = timeScale;
 				if (lastSendTime + cycleTimeStepSize <= Time.time) {
 					lastSendTime = Time.time;
@@ -165,12 +154,37 @@ namespace MLPlayer {
 					// TODO all agents have same value
 					if (agents [0].state.endEpisode) {
 						StartNewEpisode ();
+						for (int i=0; i<agents.Count; i++) {
+						    agents[i].ChangeScale();
+						}
 					}
 					
 					agentReceiveCounter = 0;
 					received.Reset ();
 					for (int i = 0; i < agents.Count; i++) {
 						agents [i].UpdateState ();
+
+						agents [i].state.rewards = new float[agents.Count];  // Set rewards
+						float[] rewards = new float[agents.Count];
+						for (int j=0; j<agents.Count; j++) {
+						    agents [i].state.rewards[j] = agents[j].state.reward;
+						}
+
+						agents [i].state.agent_id = i;                            // Set agent_id
+						
+						Vector3[] scales = new Vector3[agents.Count];             // Set gene
+						for (int j=0; j<agents.Count; j++) {
+						    scales[j] = agents[j].transform.localScale;
+						}
+						agents[i].state.gene = new float[agents.Count][];
+						for (int j=0; j<agents.Count; j++) {
+			    			    float[] xyz = new float[NumberOfParameter];
+			    			    for (int k=0; k<NumberOfParameter; k++) {
+			    			    	xyz[k] = (float)scales[j][k];
+			    			    }
+			    			    agents[i].state.gene[j] = xyz;
+						}
+
 						clients [i].PushAgentState (agents [i].state);
 					}
 					received.WaitOne ();
@@ -184,7 +198,7 @@ namespace MLPlayer {
 		
 		
 		void Update() {
-            if (communicationMode == CommunicationMode.ASYNC) {
+			if (communicationMode == CommunicationMode.ASYNC) {
 				Application.targetFrameRate = (int)Mathf.Max (60.0f, 60.0f * timeScale);
 				
 				for (int i = 0; i < agents.Count; i++) {
@@ -206,16 +220,28 @@ namespace MLPlayer {
 					
 					// TODO all agents have same value
 					if (agents [0].state.endEpisode) {
-						StartNewEpisode ();
+					   StartNewEpisode ();
 					}
 					
 					for (int i = 0; i < agents.Count; i++) {
 						agents [i].UpdateState ();
+						// <!> Must Get Parametar (add Naka)
+						agents [i].state.rewards = new float[3]; // 3 -> number of parametar
+						for (int j=0; j<3; j++) { // same
+						    agents [i].state.rewards[j] = agents[j].state.reward;
+						}
 						clients [i].PushAgentState (agents [i].state);
 					}
 					Time.timeScale = 0.0f;
 				}
 			}
 		}
+
+        [SerializeField]
+        GameObject _viewPrefab;
+
+        [SerializeField]
+        GameObject _canvas;
+
 	}
 }

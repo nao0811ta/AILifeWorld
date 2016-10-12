@@ -5,11 +5,15 @@ namespace MLPlayer {
 	public class Action {
 		public float rotate;
 		public float forward;
-		public bool jump;
+		public float scale;
+		public float jump;
+		public bool canJump;
 		public void Clear() {
 			rotate = 0;
 			forward = 0;
-			jump = false;
+			jump = 0;
+			canJump = false;
+			scale = 1.0f;
 		}
 
 		public void Set(Dictionary<System.Object, System.Object> action) {
@@ -21,28 +25,13 @@ namespace MLPlayer {
 				//Debug.Log ("key:" + System.Text.Encoding.UTF8.GetString(key) + " value:" + action[key]);
 			}
 
-			// string:
-			string command = System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["command"]]);
-			// int:
-			//int i = (int)action [originalKey ["command"]];
-			// float:
-			//float f = float.Parse (System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["value"]]));
-
 			Clear ();
-			switch (command) {
-			case "0":
-				rotate = 1;
-				break;
-			case "1":
-				rotate = -1;
-				break;
-			case "2":
-				forward = 1;
-				break;
-			case "3":
-				jump = true;
-				break;
-			}
+			forward = float.Parse(System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["x"]]));
+			rotate = float.Parse(System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["y"]]));
+			jump = float.Parse(System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["z"]]));
+			scale = float.Parse(System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["s"]]));
+			canJump = jump > 0.5;
+
 		}
 	}
 }

@@ -122,7 +122,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
                 if (m_Jump)
                 {
-                    m_MoveDir.y = m_JumpSpeed;
+					m_MoveDir.y = m_JumpSpeed * m_agent.action.jump; // Multiply ratio of learned value
                     PlayJumpSound();
                     m_Jump = false;
                     m_Jumping = true;
@@ -213,21 +213,23 @@ namespace UnityStandardAssets.Characters.FirstPerson
             // Read input
 			float horizontal = 0;
 			float vertical = m_agent.action.forward*power + CrossPlatformInputManager.GetAxis("Vertical");
-			m_Jump = m_Jump || m_agent.action.jump;
+			m_Jump = m_Jump || m_agent.action.canJump;
 			if (m_Jumping) {
 				m_Jump = false;
 			}
 
 			//m_agent._actAppliedCnt++;
-            bool waswalking = m_IsWalking;
+            //bool waswalking = m_IsWalking;
 
+			/*
 #if !MOBILE_INPUT
             // On standalone builds, walk/run speed is modified by a key press.
             // keep track of whether or not the character is walking or running
             m_IsWalking = !Input.GetKey(KeyCode.LeftShift);
 #endif
+*/
             // set the desired speed to be walking or running
-            speed = m_IsWalking ? m_WalkSpeed : m_RunSpeed;
+			speed = m_RunSpeed * m_agent.action.scale;
             m_Input = new Vector2(horizontal, vertical);
 
             // normalize input if it exceeds 1 in combined length:
@@ -238,7 +240,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
             // handle speed change to give an fov kick
             // only if the player is going to a run, is running and the fovkick is to be used
-            if (m_IsWalking != waswalking && m_UseFovKick && m_CharacterController.velocity.sqrMagnitude > 0)
+            if (/*m_IsWalking != waswalking && m_UseFovKick &&*/ m_CharacterController.velocity.sqrMagnitude > 0)
             {
                 StopAllCoroutines();
                 StartCoroutine(!m_IsWalking ? m_FovKick.FOVKickUp() : m_FovKick.FOVKickDown());
@@ -252,20 +254,41 @@ namespace UnityStandardAssets.Characters.FirstPerson
         }
 
 
-        private void OnControllerColliderHit(ControllerColliderHit hit)
-        {
-            Rigidbody body = hit.collider.attachedRigidbody;
-            //dont move the rigidbody if the character is on top of it
-            if (m_CollisionFlags == CollisionFlags.Below)
-            {
+	private void OnControllerColliderHit(ControllerColliderHit hit)
+       	{
+           Rigidbody body = hit.collider.attachedRigidbody;
+           //dont move the rigidbody if the character is on top of it
+           if (m_CollisionFlags == CollisionFlags.Below)
+           {
+               return;
+           }
+           if (body == null || body.isKinematic)
+           {
+               if (hit.gameObject.name.Contains("Agent"))
+               {
+                    float thisScale = 0.0f;
+                    float otherScale = 0.0f;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        thisScale += this.transform.localScale[i];
+                        otherScale += hit.gameObject.transform.localScale[i];
+                    }
+                    if (thisScale < otherScale)
+                    {
+                        this.GetComponent<MLPlayer.Agent>().state.reward += 1;
+                    }
+                    else if (thisScale > otherScale)
+                    {
+                        Debug.Log("damage.");
+                        hit.gameObject.GetComponent<MLPlayer.Agent>().state.reward -= 1;
+                        hit.gameObject.GetComponent<MLPlayer.Agent>().Energy -= (int)((otherScale + hit.gameObject.GetComponent<MLPlayer.Agent>().Energy) * 0.3);
+                        Debug.Log(hit.gameObject.GetComponent<MLPlayer.Agent>().Energy);
+                        hit.gameObject.transform.position -= new Vector3(-3, 0, -3);
+                    }
+                }
                 return;
-            }
-
-            if (body == null || body.isKinematic)
-            {
-                return;
-            }
-            body.AddForceAtPosition(m_CharacterController.velocity*0.1f, hit.point, ForceMode.Impulse);
+           }
+           body.AddForceAtPosition(m_CharacterController.velocity*0.1f, hit.point, ForceMode.Impulse);
         }
     }
 }
