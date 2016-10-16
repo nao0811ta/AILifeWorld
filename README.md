@@ -1,15 +1,16 @@
 # Deep AI(s) in Cute Virtual World
-##It's output of hack-a-thon of whole brain architecture initiaive(http://wba-initiative.org/).
-=============
+## It's output of hack-a-thon of whole brain architecture initiaive(http://wba-initiative.org/).
 
 ## Participants
 + Takatoshi Nao 
-+ Masaaru Kanai
++ Masaru Kanai
 + Shogo Naka
 + Keiichiro Miyamoto
 
-## ScreenShot of 3 Agents in the world with Live Viewing System.
+## ScreenShot and Movie of 3 Agents in the world with Live Viewing System.
 <img width="1024" height="512" alt="screenshot" src="https://raw.githubusercontent.com/nao0811ta/AILifeWorld/master/images/main.png?token=AATteDkDkxyNx_LnCZIWBIeECoq8syqEks5YDKkqwA%3D%3D">
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/pJ6V5KZPgLA" frameborder="0" allowfullscreen></iframe>
 
 ## Algorithm
 <img width="651" height="304" alt="screenshot" src="https://raw.githubusercontent.com/nao0811ta/AILifeWorld/master/images/algo02.png?token=AATteLzFXkMyhdGzPYXK92HEXe2WRVf9ks5YDKp7wA%3D%3D">
@@ -92,15 +93,9 @@ cd python-agent
 python plot_reward_log.py
 ```
 
-Tested with 1 Agent.
 <img width="486" height="306" alt="screenshot" src="https://raw.githubusercontent.com/nao0811ta/AILifeWorld/master/images/reward_log.png?token=AATteN_wQQkYpcjigyyYFk--im8S9ZEgks5YDK5lwA%3D%3D">
 
-This graph is a "sample" scene result. It takes about 6 hours on GPU Machine. 
-
-
-[Sample scene result movie](https://www.youtube.com/watch?v=7Ein1hRUQ_U)
-
-[SampleLikesAndDislikes scene result movie](https://www.youtube.com/watch?v=IERCgdG1_fw)
+This graph is a "sample" scene result with 1 Agent. It takes about 6 hours on GPU Machine. 
 
 ## Multi Agent
 This is supported only SYNC mode. ASYNC mode is not supprted.
