@@ -1,12 +1,26 @@
-# LIS (Life in Silico)
+# Deep AI(s) in Cute Virtual World
+##It's output of hack-a-thon of whole brain architecture initiaive(http://wba-initiative.org/).
 =============
 
-![screenshot](https://cloud.githubusercontent.com/assets/1708549/14311902/c6ce61ec-fc24-11e5-8018-5e3aaf98b6d3.png)
+## Participants
++ Takatoshi Nao 
++ Masaaru Kanai
++ Shogo Naka
++ Keiichiro Miyamoto
+
+## ScreenShot of 3 Agents in the world with Live Viewing System.
+<img width="1024" height="512" alt="screenshot" src="https://raw.githubusercontent.com/nao0811ta/AILifeWorld/master/images/main.png?token=AATteDkDkxyNx_LnCZIWBIeECoq8syqEks5YDKkqwA%3D%3D">
 
 ## Algorithm
-<img width="371" alt="2016-04-08 19 00 14" src="https://cloud.githubusercontent.com/assets/1708549/14380751/2fec7856-fdbc-11e5-9ac0-17650fc74f34.png">
+<img width="651" height="304" alt="screenshot" src="https://raw.githubusercontent.com/nao0811ta/AILifeWorld/master/images/algo02.png?token=AATteLzFXkMyhdGzPYXK92HEXe2WRVf9ks5YDKp7wA%3D%3D">
+
+<img width="650" height="491" alt="screenshot" src="https://raw.githubusercontent.com/nao0811ta/AILifeWorld/master/images/algo01.png?token=AATteDUVkpMEb2qrLsO38sdvAZaZWHsmks5YDKr_wA%3D%3D">
 
 ### Algorithm Reference 
++ Timothy P. Lillicrap et al., "Continuous control with deep reinforcement learning"
+ + https://arxiv.org/abs/1509.02971
+ + DQN code-base originated from [DQN-vrep](https://github.com/originholic/dqn-vrep)
+
 + Mnih, V. et al. Human-level control through deep reinforcement learning. Nature 518, 529–533 (2015)
  + http://www.nature.com/nature/journal/v518/n7540/abs/nature14236.html
  + [DQN-chainer](https://github.com/ugo-nama-kun/DQN-chainer)
@@ -78,7 +92,8 @@ cd python-agent
 python plot_reward_log.py
 ```
 
-<img width="400" alt="screenshot" src="https://cloud.githubusercontent.com/assets/1708549/14384486/46ace0b6-fdd6-11e5-86be-3eda63712ebe.png">
+Tested with 1 Agent.
+<img width="486" height="306" alt="screenshot" src="https://raw.githubusercontent.com/nao0811ta/AILifeWorld/master/images/reward_log.png?token=AATteN_wQQkYpcjigyyYFk--im8S9ZEgks5YDK5lwA%3D%3D">
 
 This graph is a "sample" scene result. It takes about 6 hours on GPU Machine. 
 
@@ -133,11 +148,3 @@ This will make simulation more faster, but it will be slow gui response.
  + Copyright (c) 2010-2016 sta.blockhead
  + The MIT License (MIT)
  + Assets/Packages/websocket-sharp
-
-
-## License
-+ Apache License, Version 2.0
-+ Original Developer: ([DWANGO ARTIFICIAL INTELLIGENCE LABORATORY](http://ailab.dwango.co.jp/en/))
-
-## Notice
-If you created intelligent agents, please let me know about it to "masayoshi_nakamura@dwango.co.jp". We will make showcase varied intelligent agents.
